@@ -1,5 +1,5 @@
 
-<!DOCTYPE html
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
+    <!-- Google Fonts Inter & Fira Code -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -63,349 +63,400 @@
             background: #334155;
             border-radius: 4px;
         }
+        /* Custom drag & drop highlight */
+        .drag-over {
+            border-color: #6366f1 !important;
+            background-color: rgba(99, 102, 241, 0.1) !important;
+        }
     </style>
 </head>
 <body class="bg-dark-bg text-gray-100 antialiased selection:bg-brand-500 selection:text-white">
 
-    <!-- Navigation Bar -->
-    <header class="sticky top-0 z-50 backdrop-blur-md bg-dark-bg/80 border-b border-dark-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <!-- DYNAMIC HOSTED SITE RENDERER (WITHOUT API ENGINE) -->
+    <!-- When someone visits ?site=xyz or #site=xyz, this displays their actual live hosted site -->
+    <div id="hostedSiteView" class="hidden fixed inset-0 z-[100] bg-white text-black flex flex-col">
+        <div id="hostedSiteTopbar" class="bg-slate-900 text-white px-4 py-2 flex items-center justify-between text-xs border-b border-slate-800 shadow-md">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/30">
-                    <i class="fa-solid fa-server"></i>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="font-bold tracking-tight">HassanHost Live Engine</span>
+                <span class="text-slate-400 font-mono hidden sm:inline" id="hostedSiteUrlLabel">https://hassan-host-top.vercel.app/?site=demo</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="copyCurrentHostedUrl()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded font-sans transition-colors">
+                    <i class="fa-solid fa-copy mr-1"></i> Copy Share Link
+                </button>
+                <button onclick="returnToDashboard()" class="px-3 py-1 bg-brand-600 hover:bg-brand-500 text-white rounded font-sans font-bold transition-all">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Back to Hassan Host
+                </button>
+            </div>
+        </div>
+        <iframe id="hostedSiteFrame" class="w-full flex-1 border-0 bg-white"></iframe>
+    </div>
+
+    <!-- MAIN HASSAN HOST DASHBOARD & WEBSITE -->
+    <div id="mainDashboard">
+
+        <!-- Navigation Bar -->
+        <header class="sticky top-0 z-50 backdrop-blur-md bg-dark-bg/80 border-b border-dark-border">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.hash=''">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/30">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+                    <span class="text-2xl font-black tracking-tight text-white">Hassan<span class="text-brand-500">Host</span></span>
                 </div>
-                <span class="text-2xl font-black tracking-tight text-white">Hassan<span class="text-brand-500">Host</span></span>
-            </div>
 
-            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-300">
-                <a href="#plans" class="hover:text-brand-400 transition-colors">Hosting Plans</a>
-                <a href="#free-sandbox" class="hover:text-brand-400 transition-colors flex items-center gap-1.5">
-                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Free Sandbox
-                </a>
-                <a href="#features" class="hover:text-brand-400 transition-colors">Features</a>
-                <a href="#support" class="hover:text-brand-400 transition-colors">Support</a>
-            </nav>
+                <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-300">
+                    <a href="#plans" class="hover:text-brand-400 transition-colors">Hosting Plans</a>
+                    <a href="#free-sandbox" class="hover:text-brand-400 transition-colors flex items-center gap-1.5">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Free Sandbox
+                    </a>
+                    <a href="#features" class="hover:text-brand-400 transition-colors">Features</a>
+                    <a href="#support" class="hover:text-brand-400 transition-colors">Support</a>
+                </nav>
 
-            <div class="flex items-center space-x-4">
-                <a href="#free-sandbox" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20 hover:scale-105 active:scale-95">
-                    Start Free
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="relative pt-16 pb-24 overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-900/30 via-dark-bg to-dark-bg pointer-events-none"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold uppercase tracking-wider mb-6">
-                <i class="fa-solid fa-bolt text-amber-400"></i> Lightning Fast NVMe Infrastructure
-            </div>
-            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight max-w-4xl mx-auto leading-tight">
-                Next-Gen Hosting for Developers & Businesses
-            </h1>
-            <p class="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto font-normal">
-                High-performance NVMe cloud hosting with instant static deployments, zero latency, and top-tier security for your projects.
-            </p>
-
-            <div class="mt-10 flex flex-wrap justify-center items-center gap-4">
-                <a href="#free-sandbox" class="bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-emerald-500/25 hover:scale-105 flex items-center gap-2">
-                    <i class="fa-solid fa-rocket"></i> Try Free Deployment Now
-                </a>
-                <a href="#plans" class="bg-dark-card hover:bg-slate-800 text-gray-200 border border-dark-border px-8 py-4 rounded-xl font-semibold transition-all">
-                    View Paid Plans
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Hosting Plans Section -->
-    <section id="plans" class="py-20 relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl sm:text-5xl font-extrabold text-white">Choose Your Hosting Plan</h2>
-                <p class="mt-4 text-gray-400 text-lg">Scalable cloud hosting tailored for static sandboxes and high-traffic portals.</p>
-            </div>
-
-            <!-- Grid Layout for 4 Plans -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-                <!-- 1. FREE HOSTING PLAN -->
-                <div class="bg-dark-card rounded-2xl p-6 border-2 border-emerald-500/50 flex flex-col justify-between glow-free relative overflow-hidden transform hover:-translate-y-1 transition-all">
-                    <div class="absolute top-0 right-0 bg-emerald-500 text-dark-bg font-bold text-xs px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-                        100% Free
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
-                                <i class="fa-solid fa-seedling text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-white">Free Hosting Plan</h3>
-                                <p class="text-xs text-gray-400">For beginners & test builds</p>
-                            </div>
-                        </div>
-
-                        <div class="my-6">
-                            <span class="text-4xl font-extrabold text-white">$0</span>
-                            <span class="text-gray-400 font-medium">/ month</span>
-                        </div>
-
-                        <ul class="space-y-3.5 text-sm my-6">
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Host up to <strong>10-15 Websites</strong></span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span><strong>5GB NVMe SSD</strong> Storage</span>
-                            </li>
-                            <li class="flex items-center text-gray-500 line-through gap-3">
-                                <i class="fa-solid fa-xmark text-red-500 font-bold"></i>
-                                <span>Free Auto SSL Certificate</span>
-                            </li>
-                            <li class="flex items-center text-gray-500 line-through gap-3">
-                                <i class="fa-solid fa-xmark text-red-500 font-bold"></i>
-                                <span>Unmetered Bandwidth</span>
-                            </li>
-                            <li class="flex items-center text-gray-500 line-through gap-3">
-                                <i class="fa-solid fa-xmark text-red-500 font-bold"></i>
-                                <span>Professional Email Accounts</span>
-                            </li>
-                            <li class="flex items-center text-gray-500 line-through gap-3">
-                                <i class="fa-solid fa-xmark text-red-500 font-bold"></i>
-                                <span>Free Custom Domain</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <a href="#free-sandbox" onclick="scrollToSandbox()" class="w-full py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-bold text-center transition-all shadow-lg shadow-emerald-500/20 block">
+                <div class="flex items-center space-x-4">
+                    <a href="#free-sandbox" onclick="scrollToSandbox()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20 hover:scale-105 active:scale-95">
                         Start Free
                     </a>
                 </div>
-
-                <!-- 2. STARTER WEB PLAN -->
-                <div class="bg-dark-card rounded-2xl p-6 border border-dark-border flex flex-col justify-between transform hover:-translate-y-1 transition-all">
-                    <div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="p-3 bg-brand-500/10 text-brand-400 rounded-xl">
-                                <i class="fa-solid fa-paper-plane text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-white">Starter Web</h3>
-                                <p class="text-xs text-gray-400">Ideal for small sites</p>
-                            </div>
-                        </div>
-
-                        <div class="my-6">
-                            <span class="text-4xl font-extrabold text-white">$2.99</span>
-                            <span class="text-gray-400 font-medium">/ month</span>
-                        </div>
-
-                        <ul class="space-y-3.5 text-sm my-6">
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Host up to 25 Websites</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>25GB NVMe SSD Storage</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Free Auto SSL Certificate</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Unmetered Bandwidth</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>5 Professional Email Accounts</span>
-                            </li>
-                            <li class="flex items-center text-gray-500 line-through gap-3">
-                                <i class="fa-solid fa-xmark text-red-500 font-bold"></i>
-                                <span>Free Custom Domain</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <a href="mailto:tinyxhassanff@gmail.com?subject=Order%20Inquiry%3A%20Starter%20Web%20Plan%20-%20Hassan%20Host&body=Hello%20Hassan%20Host%20Team%2C%0A%0AI%20would%20like%20to%20order%20the%20Starter%20Web%20Hosting%20Plan%20(%242.99%2Fmo).%20Please%20guide%20me%20with%20the%20setup.%0A%0AThanks!" class="w-full py-3.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-center transition-all block">
-                        Choose Starter
-                    </a>
-                </div>
-
-                <!-- 3. PRO BUSINESS PLAN (POPULAR) -->
-                <div class="bg-dark-card rounded-2xl p-6 border-2 border-brand-500 flex flex-col justify-between glow-effect relative transform hover:-translate-y-1 transition-all">
-                    <div class="absolute top-0 right-0 bg-brand-500 text-white font-bold text-xs px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-                        Most Popular
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="p-3 bg-brand-500/10 text-brand-400 rounded-xl">
-                                <i class="fa-solid fa-briefcase text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-white">Pro Business</h3>
-                                <p class="text-xs text-gray-400">High performance blogs & stores</p>
-                            </div>
-                        </div>
-
-                        <div class="my-6">
-                            <span class="text-4xl font-extrabold text-white">$6.99</span>
-                            <span class="text-gray-400 font-medium">/ month</span>
-                        </div>
-
-                        <ul class="space-y-3.5 text-sm my-6">
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Unlimited Websites</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>100GB Ultra NVMe SSD Storage</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Free Wildcard SSL Certificate</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Unmetered Bandwidth</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Unlimited Email Accounts</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Free Custom Domain (1st Year)</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <a href="mailto:tinyxhassanff@gmail.com?subject=Order%20Inquiry%3A%20Pro%20Business%20Plan%20-%20Hassan%20Host&body=Hello%20Hassan%20Host%20Team%2C%0A%0AI%20would%20like%20to%20order%20the%20Pro%20Business%20Hosting%20Plan%20(%246.99%2Fmo).%20Please%20provide%20payment%20and%20setup%20instructions.%0A%0AThanks!" class="w-full py-3.5 px-4 rounded-xl bg-brand-500 hover:bg-brand-400 text-white font-bold text-center transition-all shadow-lg shadow-brand-500/30 block">
-                        Get Pro Business
-                    </a>
-                </div>
-
-                <!-- 4. ULTIMATE VPS -->
-                <div class="bg-dark-card rounded-2xl p-6 border border-dark-border flex flex-col justify-between transform hover:-translate-y-1 transition-all">
-                    <div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="p-3 bg-purple-500/10 text-purple-400 rounded-xl">
-                                <i class="fa-solid fa-server text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-white">Ultimate VPS</h3>
-                                <p class="text-xs text-gray-400">Dedicated resources & cloud power</p>
-                            </div>
-                        </div>
-
-                        <div class="my-6">
-                            <span class="text-4xl font-extrabold text-white">$14.99</span>
-                            <span class="text-gray-400 font-medium">/ month</span>
-                        </div>
-
-                        <ul class="space-y-3.5 text-sm my-6">
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Unlimited Dedicated Apps</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>250GB NVMe SSD + 16GB RAM</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Custom SSL & Dedicated IP</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>10TB High-Speed Transfer</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Unlimited Business Emails</span>
-                            </li>
-                            <li class="flex items-center text-gray-200 gap-3">
-                                <i class="fa-solid fa-check text-emerald-400"></i>
-                                <span>Free Domain & Priority Support</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <a href="mailto:tinyxhassanff@gmail.com?subject=Order%20Inquiry%3A%20Ultimate%20VPS%20Plan%20-%20Hassan%20Host&body=Hello%20Hassan%20Host%20Team%2C%0A%0AI%20am%20interested%20in%20ordering%20the%20Ultimate%20VPS%20Plan%20(%2414.99%2Fmo).%20Please%20reach%20out%20with%20deployment%20details.%0A%0AThanks!" class="w-full py-3.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-center transition-all block">
-                        Order Ultimate VPS
-                    </a>
-                </div>
-
             </div>
-        </div>
-    </section>
+        </header>
 
-    <!-- FREE HTML HOSTING & FILE DEPLOYMENT SANDBOX -->
-    <section id="free-sandbox" class="py-16 bg-slate-900/60 border-t border-b border-dark-border">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-10">
-                <span class="px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-widest">
-                    Interactive Free Cloud Deployer
-                </span>
-                <h2 class="text-3xl sm:text-4xl font-black text-white mt-3">Free HTML Hosting & File Deployment Sandbox</h2>
-                <p class="text-gray-400 text-sm sm:text-base mt-2 max-w-2xl mx-auto">
-                    Host up to 15 static websites instantly with 5GB NVMe Storage. Enter your source code, configure your subdomain name, and launch live.
+        <!-- Hero Section -->
+        <section class="relative pt-16 pb-24 overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-900/30 via-dark-bg to-dark-bg pointer-events-none"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold uppercase tracking-wider mb-6">
+                    <i class="fa-solid fa-bolt text-amber-400"></i> Lightning Fast NVMe Infrastructure
+                </div>
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight max-w-4xl mx-auto leading-tight">
+                    Next-Gen Hosting for Developers & Businesses
+                </h1>
+                <p class="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto font-normal">
+                    High-performance NVMe cloud hosting with instant static deployments, zero latency, and top-tier security for your projects.
                 </p>
-            </div>
 
-            <!-- Supported Extensions Tag List -->
-            <div class="mb-8 flex flex-wrap items-center justify-center gap-2">
-                <span class="text-xs text-gray-400 uppercase font-semibold mr-2">Supported File Types:</span>
-                <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-amber-400 font-semibold">.html</span>
-                <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-blue-400 font-semibold">.css</span>
-                <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-yellow-400 font-semibold">.js</span>
-                <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-purple-400 font-semibold">.jss</span>
-                <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-indigo-400 font-semibold">.md</span>
-                <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-emerald-400 font-semibold">.php</span>
-                <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-cyan-400 font-semibold">.json</span>
-                <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-pink-400 font-semibold">.svg</span>
-                <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-gray-300 font-semibold">.txt</span>
-                <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-orange-400 font-semibold">.xml</span>
+                <div class="mt-10 flex flex-wrap justify-center items-center gap-4">
+                    <a href="#free-sandbox" onclick="scrollToSandbox()" class="bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-emerald-500/25 hover:scale-105 flex items-center gap-2">
+                        <i class="fa-solid fa-rocket"></i> Try Free Deployment Now
+                    </a>
+                    <a href="#plans" class="bg-dark-card hover:bg-slate-800 text-gray-200 border border-dark-border px-8 py-4 rounded-xl font-semibold transition-all">
+                        View Paid Plans
+                    </a>
+                </div>
             </div>
+        </section>
 
-            <!-- Deployment Form -->
-            <div class="bg-dark-card rounded-2xl border border-dark-border p-6 sm:p-8 shadow-2xl">
-                <form id="deploymentForm" onsubmit="handleDeploy(event)">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                        <!-- File Name Input -->
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
-                                <i class="fa-solid fa-file-code text-brand-400 mr-1"></i> File Name
-                            </label>
-                            <input type="text" id="fileName" value="index.html" required placeholder="e.g. index.html" class="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-brand-500 transition-colors">
+        <!-- Hosting Plans Section -->
+        <section id="plans" class="py-20 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl sm:text-5xl font-extrabold text-white">Choose Your Hosting Plan</h2>
+                    <p class="mt-4 text-gray-400 text-lg">Scalable cloud hosting tailored for static sandboxes and high-traffic portals.</p>
+                </div>
+
+                <!-- Grid Layout for 4 Plans -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                    <!-- 1. FREE HOSTING PLAN -->
+                    <div class="bg-dark-card rounded-2xl p-6 border-2 border-emerald-500/50 flex flex-col justify-between glow-free relative overflow-hidden transform hover:-translate-y-1 transition-all">
+                        <div class="absolute top-0 right-0 bg-emerald-500 text-dark-bg font-bold text-xs px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                            100% Free
                         </div>
-
-                        <!-- Site Subdomain Input -->
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
-                                <i class="fa-solid fa-globe text-emerald-400 mr-1"></i> Site Subdomain / Project Name
-                            </label>
-                            <div class="flex items-center bg-slate-900 border border-dark-border rounded-xl overflow-hidden focus-within:border-brand-500 transition-colors">
-                                <input type="text" id="siteName" value="my-hassan-site" required placeholder="your-name" class="w-full bg-transparent px-4 py-3 text-sm text-white font-mono focus:outline-none">
-                                <span class="pr-4 text-xs font-mono text-gray-500 whitespace-nowrap">.hassan-host-top.vercel.app</span>
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
+                                    <i class="fa-solid fa-seedling text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">Free Hosting Plan</h3>
+                                    <p class="text-xs text-gray-400">For beginners & test builds</p>
+                                </div>
                             </div>
+
+                            <div class="my-6">
+                                <span class="text-4xl font-extrabold text-white">$0</span>
+                                <span class="text-gray-400 font-medium">/ month</span>
+                            </div>
+
+                            <ul class="space-y-3.5 text-sm my-6">
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Host up to <strong>10-15 Websites</strong></span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span><strong>5GB NVMe SSD</strong> Storage</span>
+                                </li>
+                                <li class="flex items-center text-gray-500 line-through gap-3">
+                                    <i class="fa-solid fa-xmark text-red-500 font-bold"></i>
+                                    <span>Free Auto SSL Certificate</span>
+                                </li>
+                                <li class="flex items-center text-gray-500 line-through gap-3">
+                                    <i class="fa-solid fa-xmark text-red-500 font-bold"></i>
+                                    <span>Unmetered Bandwidth</span>
+                                </li>
+                                <li class="flex items-center text-gray-500 line-through gap-3">
+                                    <i class="fa-solid fa-xmark text-red-500 font-bold"></i>
+                                    <span>Professional Email Accounts</span>
+                                </li>
+                                <li class="flex items-center text-gray-500 line-through gap-3">
+                                    <i class="fa-solid fa-xmark text-red-500 font-bold"></i>
+                                    <span>Free Custom Domain</span>
+                                </li>
+                            </ul>
                         </div>
+
+                        <button onclick="scrollToSandbox()" class="w-full py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-bold text-center transition-all shadow-lg shadow-emerald-500/20 block">
+                            Start Free
+                        </button>
                     </div>
 
-                    <!-- Code Textarea -->
-                    <div class="mb-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-code text-brand-400"></i> Source Code
-                            </label>
-                            <span class="text-xs text-gray-500 font-mono">HTML / CSS / JS Supported</span>
+                    <!-- 2. STARTER WEB PLAN -->
+                    <div class="bg-dark-card rounded-2xl p-6 border border-dark-border flex flex-col justify-between transform hover:-translate-y-1 transition-all">
+                        <div>
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-3 bg-brand-500/10 text-brand-400 rounded-xl">
+                                    <i class="fa-solid fa-paper-plane text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">Starter Web</h3>
+                                    <p class="text-xs text-gray-400">Ideal for small sites</p>
+                                </div>
+                            </div>
+
+                            <div class="my-6">
+                                <span class="text-4xl font-extrabold text-white">$2.99</span>
+                                <span class="text-gray-400 font-medium">/ month</span>
+                            </div>
+
+                            <ul class="space-y-3.5 text-sm my-6">
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Host up to 25 Websites</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>25GB NVMe SSD Storage</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Free Auto SSL Certificate</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Unmetered Bandwidth</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>5 Professional Email Accounts</span>
+                                </li>
+                                <li class="flex items-center text-gray-500 line-through gap-3">
+                                    <i class="fa-solid fa-xmark text-red-500 font-bold"></i>
+                                    <span>Free Custom Domain</span>
+                                </li>
+                            </ul>
                         </div>
-                        <textarea id="sourceCode" rows="10" required class="w-full bg-slate-950 border border-dark-border rounded-xl p-4 text-xs sm:text-sm font-mono text-emerald-300 focus:outline-none focus:border-brand-500 transition-colors leading-relaxed" placeholder="Enter your HTML code here..."><!DOCTYPE html>
+
+                        <a href="mailto:tinyxhassanff@gmail.com?subject=Order%20Inquiry%3A%20Starter%20Web%20Plan%20-%20Hassan%20Host&body=Hello%20Hassan%20Host%20Team%2C%0A%0AI%20would%20like%20to%20order%20the%20Starter%20Web%20Hosting%20Plan%20(%242.99%2Fmo).%20Please%20guide%20me%20with%20the%20setup.%0A%0AThanks!" class="w-full py-3.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-center transition-all block">
+                            Choose Starter
+                        </a>
+                    </div>
+
+                    <!-- 3. PRO BUSINESS PLAN (POPULAR) -->
+                    <div class="bg-dark-card rounded-2xl p-6 border-2 border-brand-500 flex flex-col justify-between glow-effect relative transform hover:-translate-y-1 transition-all">
+                        <div class="absolute top-0 right-0 bg-brand-500 text-white font-bold text-xs px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                            Most Popular
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-3 bg-brand-500/10 text-brand-400 rounded-xl">
+                                    <i class="fa-solid fa-briefcase text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">Pro Business</h3>
+                                    <p class="text-xs text-gray-400">High performance blogs & stores</p>
+                                </div>
+                            </div>
+
+                            <div class="my-6">
+                                <span class="text-4xl font-extrabold text-white">$6.99</span>
+                                <span class="text-gray-400 font-medium">/ month</span>
+                            </div>
+
+                            <ul class="space-y-3.5 text-sm my-6">
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Unlimited Websites</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>100GB Ultra NVMe SSD Storage</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Free Wildcard SSL Certificate</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Unmetered Bandwidth</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Unlimited Email Accounts</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Free Custom Domain (1st Year)</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <a href="mailto:tinyxhassanff@gmail.com?subject=Order%20Inquiry%3A%20Pro%20Business%20Plan%20-%20Hassan%20Host&body=Hello%20Hassan%20Host%20Team%2C%0A%0AI%20would%20like%20to%20order%20the%20Pro%20Business%20Hosting%20Plan%20(%246.99%2Fmo).%20Please%20provide%20payment%20and%20setup%20instructions.%0A%0AThanks!" class="w-full py-3.5 px-4 rounded-xl bg-brand-500 hover:bg-brand-400 text-white font-bold text-center transition-all shadow-lg shadow-brand-500/30 block">
+                            Get Pro Business
+                        </a>
+                    </div>
+
+                    <!-- 4. ULTIMATE VPS -->
+                    <div class="bg-dark-card rounded-2xl p-6 border border-dark-border flex flex-col justify-between transform hover:-translate-y-1 transition-all">
+                        <div>
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-3 bg-purple-500/10 text-purple-400 rounded-xl">
+                                    <i class="fa-solid fa-server text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">Ultimate VPS</h3>
+                                    <p class="text-xs text-gray-400">Dedicated resources & cloud power</p>
+                                </div>
+                            </div>
+
+                            <div class="my-6">
+                                <span class="text-4xl font-extrabold text-white">$14.99</span>
+                                <span class="text-gray-400 font-medium">/ month</span>
+                            </div>
+
+                            <ul class="space-y-3.5 text-sm my-6">
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Unlimited Dedicated Apps</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>250GB NVMe SSD + 16GB RAM</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Custom SSL & Dedicated IP</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>10TB High-Speed Transfer</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Unlimited Business Emails</span>
+                                </li>
+                                <li class="flex items-center text-gray-200 gap-3">
+                                    <i class="fa-solid fa-check text-emerald-400"></i>
+                                    <span>Free Domain & Priority Support</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <a href="mailto:tinyxhassanff@gmail.com?subject=Order%20Inquiry%3A%20Ultimate%20VPS%20Plan%20-%20Hassan%20Host&body=Hello%20Hassan%20Host%20Team%2C%0A%0AI%20am%20interested%20in%20ordering%20the%20Ultimate%20VPS%20Plan%20(%2414.99%2Fmo).%20Please%20reach%20out%20with%20deployment%20details.%0A%0AThanks!" class="w-full py-3.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-center transition-all block">
+                            Order Ultimate VPS
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- FREE HTML HOSTING & FILE DEPLOYMENT SANDBOX -->
+        <section id="free-sandbox" class="py-16 bg-slate-900/60 border-t border-b border-dark-border">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-10">
+                    <span class="px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-widest">
+                        Interactive Free Cloud Deployer
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-black text-white mt-3">Free HTML Hosting & Drag & Drop Sandbox</h2>
+                    <p class="text-gray-400 text-sm sm:text-base mt-2 max-w-2xl mx-auto">
+                        Host up to 15 static websites instantly with 5GB NVMe Storage. Drag and drop your source code files or create files directly.
+                    </p>
+                </div>
+
+                <!-- Supported Extensions Tag List -->
+                <div class="mb-8 flex flex-wrap items-center justify-center gap-2">
+                    <span class="text-xs text-gray-400 uppercase font-semibold mr-2">Supported File Types:</span>
+                    <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-amber-400 font-semibold">.html</span>
+                    <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-blue-400 font-semibold">.css</span>
+                    <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-yellow-400 font-semibold">.js</span>
+                    <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-purple-400 font-semibold">.jss</span>
+                    <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-indigo-400 font-semibold">.md</span>
+                    <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-emerald-400 font-semibold">.php</span>
+                    <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-cyan-400 font-semibold">.json</span>
+                    <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-pink-400 font-semibold">.svg</span>
+                    <span class="bg-dark-card border border-dark-border px-2.5 py-1 rounded-md text-xs font-mono text-gray-300 font-semibold">.txt</span>
+                </div>
+
+                <!-- Drag & Drop File Upload Area -->
+                <div class="mb-8">
+                    <div id="dropZone" class="border-2 border-dashed border-dark-border hover:border-brand-500 rounded-2xl p-8 bg-dark-card/60 text-center transition-all cursor-pointer group">
+                        <input type="file" id="fileInput" class="hidden" accept=".html,.css,.js,.jss,.md,.json,.txt,.php" onchange="handleFileSelect(event)">
+                        <div class="w-16 h-16 rounded-2xl bg-brand-500/10 text-brand-400 flex items-center justify-center mx-auto mb-4 text-2xl group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Drag & Drop Files Here</h3>
+                        <p class="text-xs text-gray-400 mb-4">Upload `.html`, `.css`, `.js`, `.json`, `.md` or text files</p>
+                        <button type="button" onclick="document.getElementById('fileInput').click()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs text-gray-200 font-semibold rounded-lg transition-colors border border-dark-border">
+                            Browse Local Computer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Prominent BLUE "Create New File" Button -->
+                <div class="mb-8 text-center">
+                    <button type="button" onclick="openCreateFileModal()" class="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-base rounded-xl transition-all shadow-xl shadow-blue-600/30 hover:scale-105 active:scale-95 flex items-center justify-center gap-3 mx-auto">
+                        <i class="fa-solid fa-file-circle-plus text-xl"></i>
+                        <span>Create New File / Open Code Editor</span>
+                    </button>
+                </div>
+
+                <!-- Deployment Form (Fully Editable Input Fields) -->
+                <div class="bg-dark-card rounded-2xl border border-dark-border p-6 sm:p-8 shadow-2xl">
+                    <form id="deploymentForm" onsubmit="handleDeploy(event)">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                            <!-- File Name Input (Smoothed Focus & Editing) -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
+                                    <i class="fa-solid fa-file-code text-brand-400 mr-1"></i> File Name
+                                </label>
+                                <input type="text" id="fileName" value="index.html" required placeholder="e.g. index.html" class="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors">
+                            </div>
+
+                            <!-- Site Subdomain Input -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
+                                    <i class="fa-solid fa-globe text-emerald-400 mr-1"></i> Site Subdomain / Project Name
+                                </label>
+                                <div class="flex items-center bg-slate-900 border border-dark-border rounded-xl overflow-hidden focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-colors">
+                                    <input type="text" id="siteName" value="my-hassan-site" required placeholder="your-name" class="w-full bg-transparent px-4 py-3 text-sm text-white font-mono focus:outline-none">
+                                    <span class="pr-4 text-xs font-mono text-gray-500 whitespace-nowrap">.hassan-host-top.vercel.app</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Code Textarea -->
+                        <div class="mb-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-code text-brand-400"></i> Source Code
+                                </label>
+                                <span class="text-xs text-gray-500 font-mono">HTML / CSS / JS Supported</span>
+                            </div>
+                            <textarea id="sourceCode" rows="10" required class="w-full bg-slate-950 border border-dark-border rounded-xl p-4 text-xs sm:text-sm font-mono text-emerald-300 focus:outline-none focus:border-brand-500 transition-colors leading-relaxed" placeholder="Enter your HTML code here..."><!DOCTYPE html>
 <html>
 <head>
     <title>My Hassan Host Site</title>
@@ -418,159 +469,288 @@
 <body>
     <div class="card">
         <h1>🚀 Live on Hassan Host Free Plan!</h1>
-        <p>This static website was deployed using 5GB NVMe Free Storage.</p>
+        <p>This static website was deployed using 5GB NVMe Free Storage without API.</p>
     </div>
 </body>
 </html></textarea>
-                    </div>
-
-                    <!-- Deploy Button -->
-                    <button type="submit" id="deployBtn" class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-dark-bg font-extrabold text-base tracking-wide transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3">
-                        <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
-                        <span>Deploy Now / Host Live</span>
-                    </button>
-                </form>
-
-                <!-- 20-SECOND LIVE DEPLOYMENT SIMULATION TERMINAL -->
-                <div id="deploymentProcess" class="hidden mt-8 border-t border-dark-border pt-8">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></div>
-                            <span class="text-sm font-bold text-white">Deploying to Free NVMe Node...</span>
                         </div>
-                        <span id="timerCountdown" class="text-sm font-mono font-bold text-emerald-400">20s remaining</span>
+
+                        <!-- Deploy Button -->
+                        <button type="submit" id="deployBtn" class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-dark-bg font-extrabold text-base tracking-wide transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+                            <span>Deploy Now / Host Live</span>
+                        </button>
+                    </form>
+
+                    <!-- 20-SECOND LIVE DEPLOYMENT SIMULATION TERMINAL -->
+                    <div id="deploymentProcess" class="hidden mt-8 border-t border-dark-border pt-8">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></div>
+                                <span class="text-sm font-bold text-white">Deploying to Free NVMe Node...</span>
+                            </div>
+                            <span id="timerCountdown" class="text-sm font-mono font-bold text-emerald-400">20s remaining</span>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-slate-950 rounded-full h-3 mb-6 overflow-hidden p-0.5 border border-dark-border">
+                            <div id="progressBar" class="bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400 h-full rounded-full transition-all duration-1000 ease-linear" style="width: 0%"></div>
+                        </div>
+
+                        <!-- Live Build Log Terminal -->
+                        <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-gray-300 h-48 overflow-y-auto terminal-scroll" id="terminalLogs">
+                            <!-- Terminal logs dynamically injected here -->
+                        </div>
                     </div>
 
-                    <!-- Progress Bar -->
-                    <div class="w-full bg-slate-950 rounded-full h-3 mb-6 overflow-hidden p-0.5 border border-dark-border">
-                        <div id="progressBar" class="bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400 h-full rounded-full transition-all duration-1000 ease-linear" style="width: 0%"></div>
+                    <!-- DEPLOYMENT SUCCESSFUL RESULT CARD -->
+                    <div id="deploymentResult" class="hidden mt-8 border-t border-emerald-500/30 pt-8">
+                        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-6">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                                <div>
+                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider inline-block mb-2">
+                                        <i class="fa-solid fa-circle-check mr-1"></i> Deployment Successful 🎉
+                                    </span>
+                                    <h3 class="text-2xl font-black text-white break-all" id="resDomainTitle">my-hassan-site.hassan-host-top.vercel.app</h3>
+                                    <p class="text-xs text-gray-400 mt-1">Free Tier • Without API Local Engine • Instant Real Renderer</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="copyGeneratedUrl()" class="px-4 py-2.5 bg-dark-card hover:bg-slate-800 border border-dark-border rounded-xl text-xs font-bold text-gray-200 transition-all flex items-center gap-2">
+                                        <i class="fa-solid fa-copy"></i> Copy Link
+                                    </button>
+                                    <button id="visitSiteBtn" onclick="openHostedSiteView()" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-extrabold rounded-xl text-xs transition-all flex items-center gap-2">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Live Site
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Details Grid -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 text-xs bg-slate-900/80 p-4 rounded-xl border border-dark-border">
+                                <div>
+                                    <span class="text-gray-500 block">Storage Allocated</span>
+                                    <span class="font-mono text-white font-semibold">5GB NVMe SSD</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500 block">CDN Node</span>
+                                    <span class="font-mono text-white font-semibold">Singapore Edge #04</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500 block">SSL Status</span>
+                                    <span class="font-mono text-red-400 font-semibold">Disabled (Free Plan)</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500 block">Deployed At</span>
+                                    <span class="font-mono text-emerald-400 font-semibold" id="deployTime">Just now</span>
+                                </div>
+                            </div>
+
+                            <!-- Live Render Preview Box -->
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-desktop text-brand-400"></i> Interactive Live Preview
+                                </h4>
+                                <div class="w-full h-80 rounded-xl overflow-hidden border border-dark-border bg-white shadow-inner">
+                                    <iframe id="sitePreviewFrame" class="w-full h-full border-0"></iframe>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Live Build Log Terminal -->
-                    <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-gray-300 h-48 overflow-y-auto terminal-scroll" id="terminalLogs">
-                        <!-- Terminal logs dynamically injected here -->
-                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Platform Features -->
+        <section id="features" class="py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-extrabold text-white">Why Choose Hassan Host?</h2>
+                    <p class="text-gray-400 mt-2">Built for high speed, continuous uptime, and effortless developer deployments.</p>
                 </div>
 
-                <!-- DEPLOYMENT SUCCESSFUL RESULT CARD -->
-                <div id="deploymentResult" class="hidden mt-8 border-t border-emerald-500/30 pt-8">
-                    <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-6">
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                            <div>
-                                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider inline-block mb-2">
-                                    <i class="fa-solid fa-circle-check mr-1"></i> Deployment Successful 🎉
-                                </span>
-                                <h3 class="text-2xl font-black text-white" id="resDomainTitle">my-hassan-site.hassan-host-top.vercel.app</h3>
-                                <p class="text-xs text-gray-400 mt-1">Free Tier • NVMe Global Edge Node • Live Static Server</p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="copyGeneratedUrl()" class="px-4 py-2.5 bg-dark-card hover:bg-slate-800 border border-dark-border rounded-xl text-xs font-bold text-gray-200 transition-all flex items-center gap-2">
-                                    <i class="fa-solid fa-copy"></i> Copy Link
-                                </button>
-                                <a id="visitSiteBtn" href="#" target="_blank" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-extrabold rounded-xl text-xs transition-all flex items-center gap-2">
-                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Visit Site
-                                </a>
-                            </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-dark-card p-6 rounded-2xl border border-dark-border">
+                        <div class="w-12 h-12 bg-brand-500/10 rounded-xl flex items-center justify-center text-brand-400 text-xl mb-4">
+                            <i class="fa-solid fa-microchip"></i>
                         </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Pure NVMe Storage</h3>
+                        <p class="text-sm text-gray-400">Up to 10x faster read/write speed compared to traditional SSD hosting infrastructure.</p>
+                    </div>
 
-                        <!-- Details Grid -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 text-xs bg-slate-900/80 p-4 rounded-xl border border-dark-border">
-                            <div>
-                                <span class="text-gray-500 block">Storage Allocated</span>
-                                <span class="font-mono text-white font-semibold">5GB NVMe SSD</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-500 block">CDN Node</span>
-                                <span class="font-mono text-white font-semibold">Singapore Edge #04</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-500 block">SSL Status</span>
-                                <span class="font-mono text-red-400 font-semibold">Disabled (Free Plan)</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-500 block">Deployed At</span>
-                                <span class="font-mono text-emerald-400 font-semibold" id="deployTime">Just now</span>
-                            </div>
+                    <div class="bg-dark-card p-6 rounded-2xl border border-dark-border">
+                        <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 text-xl mb-4">
+                            <i class="fa-solid fa-shield-halved"></i>
                         </div>
+                        <h3 class="text-lg font-bold text-white mb-2">DDoS Shield Protection</h3>
+                        <p class="text-sm text-gray-400">Automated firewall mitigation layers keeping your online applications safe 24/7/365.</p>
+                    </div>
 
-                        <!-- Live Render Preview Box -->
-                        <div>
-                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                <i class="fa-solid fa-desktop text-brand-400"></i> Interactive Live Site Preview
-                            </h4>
-                            <div class="w-full h-80 rounded-xl overflow-hidden border border-dark-border bg-white shadow-inner">
-                                <iframe id="sitePreviewFrame" class="w-full h-full border-0"></iframe>
-                            </div>
+                    <div class="bg-dark-card p-6 rounded-2xl border border-dark-border">
+                        <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 text-xl mb-4">
+                            <i class="fa-solid fa-headset"></i>
                         </div>
+                        <h3 class="text-lg font-bold text-white mb-2">24/7 Expert Support</h3>
+                        <p class="text-sm text-gray-400">Direct assistance from real web hosting engineers for all setup inquiries.</p>
                     </div>
                 </div>
+            </div>
+        </section>
 
+        <!-- Footer -->
+        <footer id="support" class="bg-slate-950 border-t border-dark-border py-12 text-sm text-gray-400">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+                    <span class="text-lg font-bold text-white">HassanHost</span>
+                </div>
+                <p>© 2026 Hassan Host. All rights reserved. Ultra-fast Web & Sandbox Hosting.</p>
+                <div class="flex items-center space-x-4">
+                    <a href="mailto:tinyxhassanff@gmail.com" class="text-gray-400 hover:text-brand-400 transition-colors">
+                        <i class="fa-solid fa-envelope mr-1"></i> tinyxhassanff@gmail.com
+                    </a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- CREATE NEW FILE FULL-PAGE MODAL EDITOR -->
+    <div id="createFileModal" class="hidden fixed inset-0 z-[90] bg-dark-bg/95 backdrop-blur-lg flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-dark-card border border-dark-border w-full max-w-4xl rounded-2xl p-6 sm:p-8 shadow-2xl relative my-8">
+            <button onclick="closeCreateFileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="p-3 bg-blue-600/20 text-blue-400 rounded-xl">
+                    <i class="fa-solid fa-file-code text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-white">Create New Web Page File</h3>
+                    <p class="text-xs text-gray-400">Build your site and host it for free on Hassan Host</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">File Name</label>
+                    <input type="text" id="modalFileName" value="index.html" placeholder="e.g., index.html" class="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">Your Website Name (Subdomain)</label>
+                    <input type="text" id="modalSiteName" value="my-hassan-site" placeholder="your-name" class="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">HTML / CSS / JS Code</label>
+                <textarea id="modalSourceCode" rows="12" class="w-full bg-slate-950 border border-dark-border rounded-xl p-4 text-xs font-mono text-emerald-300 focus:outline-none focus:border-blue-500 leading-relaxed" placeholder="Type your HTML code here..."><!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to Hassan Host</title>
+    <style>
+        body { background-color: #0d1117; color: #58a6ff; font-family: system-ui; text-align: center; padding-top: 100px; }
+        .box { background: #161b22; border: 1px solid #30363d; display: inline-block; padding: 40px; border-radius: 16px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>🎉 Hosted on Hassan Host!</h1>
+        <p style="color: #8b949e;">Your site is live on local client-side engine!</p>
+    </div>
+</body>
+</html></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-4">
+                <button onclick="closeCreateFileModal()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-gray-300 rounded-xl text-xs font-bold">
+                    Cancel
+                </button>
+                <button onclick="applyModalToFile()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-blue-600/30">
+                    Save File & Proceed To Deploy
+                </button>
             </div>
         </div>
-    </section>
-
-    <!-- Platform Features -->
-    <section id="features" class="py-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl font-extrabold text-white">Why Choose Hassan Host?</h2>
-                <p class="text-gray-400 mt-2">Built for high speed, continuous uptime, and effortless developer deployments.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-dark-card p-6 rounded-2xl border border-dark-border">
-                    <div class="w-12 h-12 bg-brand-500/10 rounded-xl flex items-center justify-center text-brand-400 text-xl mb-4">
-                        <i class="fa-solid fa-microchip"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Pure NVMe Storage</h3>
-                    <p class="text-sm text-gray-400">Up to 10x faster read/write speed compared to traditional SSD hosting infrastructure.</p>
-                </div>
-
-                <div class="bg-dark-card p-6 rounded-2xl border border-dark-border">
-                    <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 text-xl mb-4">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">DDoS Shield Protection</h3>
-                    <p class="text-sm text-gray-400">Automated firewall mitigation layers keeping your online applications safe 24/7/365.</p>
-                </div>
-
-                <div class="bg-dark-card p-6 rounded-2xl border border-dark-border">
-                    <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 text-xl mb-4">
-                        <i class="fa-solid fa-headset"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">24/7 Expert Support</h3>
-                    <p class="text-sm text-gray-400">Direct assistance from real web hosting engineers for all setup inquiries.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer id="support" class="bg-slate-950 border-t border-dark-border py-12 text-sm text-gray-400">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold">
-                    <i class="fa-solid fa-server"></i>
-                </div>
-                <span class="text-lg font-bold text-white">HassanHost</span>
-            </div>
-            <p>© 2026 Hassan Host. All rights reserved. Ultra-fast Web & Sandbox Hosting.</p>
-            <div class="flex items-center space-x-4">
-                <a href="mailto:tinyxhassanff@gmail.com" class="text-gray-400 hover:text-brand-400 transition-colors">
-                    <i class="fa-solid fa-envelope mr-1"></i> tinyxhassanff@gmail.com
-                </a>
-            </div>
-        </div>
-    </footer>
+    </div>
 
     <!-- JavaScript Logic -->
     <script>
+        let currentLiveUrl = '';
+        let currentSiteName = '';
+
         function scrollToSandbox() {
             document.getElementById('free-sandbox').scrollIntoView({ behavior: 'smooth' });
         }
 
-        let currentLiveUrl = '';
+        // --- Drag & Drop Handlers ---
+        const dropZone = document.getElementById('dropZone');
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
 
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
+        });
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                processUploadedFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                processUploadedFile(files[0]);
+            }
+        }
+
+        function processUploadedFile(file) {
+            document.getElementById('fileName').value = file.name;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                document.getElementById('sourceCode').value = evt.target.result;
+                alert('File uploaded successfully into code editor!');
+                scrollToSandbox();
+            };
+            reader.readAsText(file);
+        }
+
+        // --- Create New File Modal Handlers ---
+        function openCreateFileModal() {
+            document.getElementById('modalFileName').value = document.getElementById('fileName').value;
+            document.getElementById('modalSiteName').value = document.getElementById('siteName').value;
+            document.getElementById('modalSourceCode').value = document.getElementById('sourceCode').value;
+            document.getElementById('createFileModal').classList.remove('hidden');
+        }
+
+        function closeCreateFileModal() {
+            document.getElementById('createFileModal').classList.add('hidden');
+        }
+
+        function applyModalToFile() {
+            document.getElementById('fileName').value = document.getElementById('modalFileName').value;
+            document.getElementById('siteName').value = document.getElementById('modalSiteName').value;
+            document.getElementById('sourceCode').value = document.getElementById('modalSourceCode').value;
+            closeCreateFileModal();
+            scrollToSandbox();
+        }
+
+        // --- WITHOUT API HOSTING ENGINE LOGIC ---
         function handleDeploy(e) {
             e.preventDefault();
 
@@ -580,8 +760,14 @@
 
             // Sanitize site name
             const cleanSiteName = rawSiteName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-            const fullDomain = `${cleanSiteName}.hassan-host-top.vercel.app`;
-            currentLiveUrl = `https://${fullDomain}`;
+            currentSiteName = cleanSiteName;
+
+            // Save user code into localStorage for persistent client-side route rendering
+            localStorage.setItem('hassan_site_' + cleanSiteName, sourceCode);
+
+            // Construct Without API URL: Uses current domain with query param
+            const baseUrl = window.location.origin + window.location.pathname;
+            currentLiveUrl = `${baseUrl}?site=${cleanSiteName}`;
 
             const deployBtn = document.getElementById('deployBtn');
             const processDiv = document.getElementById('deploymentProcess');
@@ -599,7 +785,7 @@
             progressBar.style.width = '0%';
 
             // Deployment Steps Sequence for exactly 20 Seconds Simulation
-            const totalDuration = 20; // 20 seconds
+            const totalDuration = 20;
             let secondsLeft = totalDuration;
 
             const steps = [
@@ -607,14 +793,13 @@
                 { time: 2, msg: `📂 Validating uploaded file structure [${fileName}]...` },
                 { time: 4, msg: "💾 Allocating 5GB NVMe SSD Virtual Drive..." },
                 { time: 6, msg: "🔍 Verifying static HTML/JS syntax & tags..." },
-                { time: 9, msg: "🌐 Configuring subdomain route: " + fullDomain },
+                { time: 9, msg: "🌐 Mapping route: " + cleanSiteName + ".hassan-host-top.vercel.app" },
                 { time: 12, msg: "⚙️ Optimizing web assets & compiling DOM tree..." },
-                { time: 15, msg: "🚀 Deploying to Vercel Global Edge Server network..." },
+                { time: 15, msg: "🚀 Deploying to Vercel Global Edge Client Node..." },
                 { time: 18, msg: "✨ Finalizing HTTP server routes & cache headers..." },
                 { time: 20, msg: "✅ Deployment successful! Your site is live!" }
             ];
 
-            // Timer display interval
             const timerInterval = setInterval(() => {
                 secondsLeft--;
                 if (secondsLeft >= 0) {
@@ -626,7 +811,6 @@
                 }
             }, 1000);
 
-            // Trigger log messages
             steps.forEach(step => {
                 setTimeout(() => {
                     const logItem = document.createElement('div');
@@ -638,12 +822,11 @@
                 }, step.time * 1000);
             });
 
-            // Complete Deployment after 20 Seconds
             setTimeout(() => {
                 deployBtn.disabled = false;
                 deployBtn.classList.remove('opacity-50', 'cursor-not-allowed');
 
-                // Render in iframe
+                // Render in local iframe preview box
                 const frame = document.getElementById('sitePreviewFrame');
                 const frameDoc = frame.contentDocument || frame.contentWindow.document;
                 frameDoc.open();
@@ -651,22 +834,18 @@
                 frameDoc.close();
 
                 // Update Result UI
-                document.getElementById('resDomainTitle').innerText = fullDomain;
-                document.getElementById('visitSiteBtn').href = '#';
-                document.getElementById('visitSiteBtn').onclick = (evt) => {
-                    evt.preventDefault();
-                    // Open rendered code view in a new window tab
-                    const newWin = window.open();
-                    if (newWin) {
-                        newWin.document.write(sourceCode);
-                        newWin.document.close();
-                    }
-                };
+                document.getElementById('resDomainTitle').innerText = `${cleanSiteName}.hassan-host-top.vercel.app`;
                 document.getElementById('deployTime').innerText = new Date().toLocaleTimeString();
 
                 resultDiv.classList.remove('hidden');
                 resultDiv.scrollIntoView({ behavior: 'smooth' });
             }, totalDuration * 1000);
+        }
+
+        function openHostedSiteView() {
+            if (!currentSiteName) return;
+            // Set URL hash or search parameter to trigger hosted view
+            window.location.search = `?site=${currentSiteName}`;
         }
 
         function copyGeneratedUrl() {
@@ -677,8 +856,45 @@
             tempInput.select();
             document.execCommand('copy');
             document.body.removeChild(tempInput);
-            alert('Copied URL to clipboard: ' + currentLiveUrl);
+            alert('Copied Shareable Hosted Link:\n' + currentLiveUrl);
         }
+
+        function copyCurrentHostedUrl() {
+            const tempInput = document.createElement('input');
+            tempInput.value = window.location.href;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('Copied URL to clipboard!');
+        }
+
+        function returnToDashboard() {
+            window.location.search = '';
+        }
+
+        // --- PAGE LOAD ROUTER FOR WITHOUT API ENGINE ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const site = urlParams.get('site');
+
+            if (site) {
+                const storedCode = localStorage.getItem('hassan_site_' + site);
+                const hostedView = document.getElementById('hostedSiteView');
+                const frame = document.getElementById('hostedSiteFrame');
+                const label = document.getElementById('hostedSiteUrlLabel');
+
+                label.innerText = `${site}.hassan-host-top.vercel.app`;
+                hostedView.classList.remove('hidden');
+
+                const codeToRender = storedCode || `<!DOCTYPE html><html><body style="background:#0a0d14;color:#fff;font-family:sans-serif;text-align:center;padding-top:100px;"><h1>404 - Site Not Found</h1><p>The requested sub-site "${site}" was not found on this device engine.</p></body></html>`;
+
+                const frameDoc = frame.contentDocument || frame.contentWindow.document;
+                frameDoc.open();
+                frameDoc.write(codeToRender);
+                frameDoc.close();
+            }
+        });
     </script>
 </body>
 </html>
