@@ -59,7 +59,6 @@
             background: #334155;
             border-radius: 4px;
         }
-        /* Custom drag & drop highlight */
         .drag-over {
             border-color: #6366f1 !important;
             background-color: rgba(99, 102, 241, 0.1) !important;
@@ -69,7 +68,6 @@
 <body class="bg-dark-bg text-gray-100 antialiased selection:bg-brand-500 selection:text-white">
 
     <!-- DYNAMIC HOSTED SITE RENDERER (CLEAN FULLSCREEN NO OVERLAY) -->
-    <!-- Displays pure HTML without any top bars or headers -->
     <div id="hostedSiteView" class="hidden fixed inset-0 z-[100] bg-white">
         <iframe id="hostedSiteFrame" class="w-full h-full border-0 bg-white"></iframe>
     </div>
@@ -98,9 +96,9 @@
                 </nav>
 
                 <div class="flex items-center space-x-4">
-                    <a href="#free-sandbox" onclick="scrollToSandbox()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20 hover:scale-105 active:scale-95">
+                    <button onclick="openCreateFileModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20 hover:scale-105 active:scale-95">
                         Deploy Site
-                    </a>
+                    </button>
                 </div>
             </div>
         </header>
@@ -120,9 +118,9 @@
                 </p>
 
                 <div class="mt-10 flex flex-wrap justify-center items-center gap-4">
-                    <a href="#free-sandbox" onclick="scrollToSandbox()" class="bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-emerald-500/25 hover:scale-105 flex items-center gap-2">
+                    <button onclick="openCreateFileModal()" class="bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-emerald-500/25 hover:scale-105 flex items-center gap-2">
                         <i class="fa-solid fa-rocket"></i> Host Your Website Free
-                    </a>
+                    </button>
                     <a href="#history-section" class="bg-dark-card hover:bg-slate-800 text-gray-200 border border-dark-border px-8 py-4 rounded-xl font-semibold transition-all">
                         View Hosted History
                     </a>
@@ -180,138 +178,81 @@
                     </button>
                 </div>
 
-                <!-- Deployment Form -->
-                <div class="bg-dark-card rounded-2xl border border-dark-border p-6 sm:p-8 shadow-2xl">
-                    <form id="deploymentForm" onsubmit="handleDeploy(event)">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                            <!-- File Name Input -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
-                                    <i class="fa-solid fa-file-code text-brand-400 mr-1"></i> File Name
-                                </label>
-                                <input type="text" id="fileName" value="index.html" required placeholder="e.g. index.html" class="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors">
-                            </div>
+                <!-- Hidden Deploy Form Data Holder for Internal Script -->
+                <input type="hidden" id="activeFileName" value="index.html">
+                <input type="hidden" id="activeSiteName" value="my-hassan-site">
+                <input type="hidden" id="activeSourceCode" value="">
 
-                            <!-- Site Subdomain Input -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
-                                    <i class="fa-solid fa-globe text-emerald-400 mr-1"></i> Site Subdomain / Project Name
-                                </label>
-                                <div class="flex items-center bg-slate-900 border border-dark-border rounded-xl overflow-hidden focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-colors">
-                                    <input type="text" id="siteName" value="my-hassan-site" required placeholder="your-name" class="w-full bg-transparent px-4 py-3 text-sm text-white font-mono focus:outline-none">
-                                    <span class="pr-4 text-xs font-mono text-gray-500 whitespace-nowrap">.hassan-host-top.vercel.app</span>
-                                </div>
-                            </div>
+                <!-- 20-SECOND LIVE DEPLOYMENT SIMULATION TERMINAL -->
+                <div id="deploymentProcess" class="hidden bg-dark-card rounded-2xl border border-dark-border p-6 sm:p-8 shadow-2xl mb-8">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></div>
+                            <span class="text-sm font-bold text-white">Deploying to Free NVMe Node...</span>
                         </div>
-
-                        <!-- Code Textarea -->
-                        <div class="mb-6">
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
-                                    <i class="fa-solid fa-code text-brand-400"></i> Source Code
-                                </label>
-                                <span class="text-xs text-gray-500 font-mono">HTML / CSS / JS Supported</span>
-                            </div>
-                            <textarea id="sourceCode" rows="10" required class="w-full bg-slate-950 border border-dark-border rounded-xl p-4 text-xs sm:text-sm font-mono text-emerald-300 focus:outline-none focus:border-brand-500 transition-colors leading-relaxed" placeholder="Enter your HTML code here..."><!DOCTYPE html>
-<html>
-<head>
-    <title>My Hassan Host Site</title>
-    <style>
-        body { background: #0f172a; color: #fff; font-family: sans-serif; text-align: center; padding: 50px; }
-        h1 { color: #10b981; font-size: 2.5rem; }
-        .card { background: #1e293b; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h1>🚀 Live on Hassan Host Free Plan!</h1>
-        <p>This static website was deployed using 5GB NVMe Free Storage.</p>
-    </div>
-</body>
-</html></textarea>
-                        </div>
-
-                        <!-- Deploy Button -->
-                        <button type="submit" id="deployBtn" class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-dark-bg font-extrabold text-base tracking-wide transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3">
-                            <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
-                            <span>Deploy Now / Host Live</span>
-                        </button>
-                    </form>
-
-                    <!-- 20-SECOND LIVE DEPLOYMENT SIMULATION TERMINAL -->
-                    <div id="deploymentProcess" class="hidden mt-8 border-t border-dark-border pt-8">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></div>
-                                <span class="text-sm font-bold text-white">Deploying to Free NVMe Node...</span>
-                            </div>
-                            <span id="timerCountdown" class="text-sm font-mono font-bold text-emerald-400">20s remaining</span>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        <div class="w-full bg-slate-950 rounded-full h-3 mb-6 overflow-hidden p-0.5 border border-dark-border">
-                            <div id="progressBar" class="bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400 h-full rounded-full transition-all duration-1000 ease-linear" style="width: 0%"></div>
-                        </div>
-
-                        <!-- Live Build Log Terminal -->
-                        <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-gray-300 h-48 overflow-y-auto terminal-scroll" id="terminalLogs">
-                            <!-- Terminal logs dynamically injected here -->
-                        </div>
+                        <span id="timerCountdown" class="text-sm font-mono font-bold text-emerald-400">20s remaining</span>
                     </div>
 
-                    <!-- DEPLOYMENT SUCCESSFUL RESULT CARD -->
-                    <div id="deploymentResult" class="hidden mt-8 border-t border-emerald-500/30 pt-8">
-                        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-6">
-                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                                <div>
-                                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider inline-block mb-2">
-                                        <i class="fa-solid fa-circle-check mr-1"></i> Deployment Successful 🎉
-                                    </span>
-                                    <h3 class="text-2xl font-black text-white break-all" id="resDomainTitle">my-hassan-site.hassan-host-top.vercel.app</h3>
-                                    <p class="text-xs text-gray-400 mt-1">Free Tier • Instant Clean Fullscreen Renderer</p>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <button onclick="copyGeneratedUrl()" class="px-4 py-2.5 bg-dark-card hover:bg-slate-800 border border-dark-border rounded-xl text-xs font-bold text-gray-200 transition-all flex items-center gap-2">
-                                        <i class="fa-solid fa-copy"></i> Copy Link
-                                    </button>
-                                    <button id="visitSiteBtn" onclick="openHostedSiteView()" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-extrabold rounded-xl text-xs transition-all flex items-center gap-2">
-                                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Live Site
-                                    </button>
-                                </div>
-                            </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-950 rounded-full h-3 mb-6 overflow-hidden p-0.5 border border-dark-border">
+                        <div id="progressBar" class="bg-gradient-to-r from-brand-500 via-emerald-400 to-teal-400 h-full rounded-full transition-all duration-1000 ease-linear" style="width: 0%"></div>
+                    </div>
 
-                            <!-- Details Grid -->
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 text-xs bg-slate-900/80 p-4 rounded-xl border border-dark-border">
-                                <div>
-                                    <span class="text-gray-500 block">Storage Allocated</span>
-                                    <span class="font-mono text-white font-semibold">5GB NVMe SSD</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-500 block">CDN Node</span>
-                                    <span class="font-mono text-white font-semibold">Singapore Edge #04</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-500 block">SSL Status</span>
-                                    <span class="font-mono text-red-400 font-semibold">Disabled (Free Plan)</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-500 block">Deployed At</span>
-                                    <span class="font-mono text-emerald-400 font-semibold" id="deployTime">Just now</span>
-                                </div>
-                            </div>
+                    <!-- Live Build Log Terminal -->
+                    <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-gray-300 h-48 overflow-y-auto terminal-scroll" id="terminalLogs"></div>
+                </div>
 
-                            <!-- Live Render Preview Box -->
+                <!-- DEPLOYMENT SUCCESSFUL RESULT CARD -->
+                <div id="deploymentResult" class="hidden bg-dark-card rounded-2xl border border-emerald-500/30 p-6 sm:p-8 shadow-2xl mb-8">
+                    <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-6">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                             <div>
-                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                    <i class="fa-solid fa-desktop text-brand-400"></i> Interactive Live Preview
-                                </h4>
-                                <div class="w-full h-80 rounded-xl overflow-hidden border border-dark-border bg-white shadow-inner">
-                                    <iframe id="sitePreviewFrame" class="w-full h-full border-0"></iframe>
-                                </div>
+                                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider inline-block mb-2">
+                                    <i class="fa-solid fa-circle-check mr-1"></i> Deployment Successful 🎉
+                                </span>
+                                <h3 class="text-2xl font-black text-white break-all" id="resDomainTitle">my-hassan-site.hassan-host-top.vercel.app</h3>
+                                <p class="text-xs text-gray-400 mt-1">Free Tier • Instant Clean Fullscreen Renderer</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="copyGeneratedUrl()" class="px-4 py-2.5 bg-dark-card hover:bg-slate-800 border border-dark-border rounded-xl text-xs font-bold text-gray-200 transition-all flex items-center gap-2">
+                                    <i class="fa-solid fa-copy"></i> Copy Link
+                                </button>
+                                <button id="visitSiteBtn" onclick="openHostedSiteView()" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-extrabold rounded-xl text-xs transition-all flex items-center gap-2">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Live Site
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Details Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 text-xs bg-slate-900/80 p-4 rounded-xl border border-dark-border">
+                            <div>
+                                <span class="text-gray-500 block">Storage Allocated</span>
+                                <span class="font-mono text-white font-semibold">5GB NVMe SSD</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block">CDN Node</span>
+                                <span class="font-mono text-white font-semibold">Singapore Edge #04</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block">SSL Status</span>
+                                <span class="font-mono text-red-400 font-semibold">Disabled (Free Plan)</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block">Deployed At</span>
+                                <span class="font-mono text-emerald-400 font-semibold" id="deployTime">Just now</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Render Preview Box -->
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-desktop text-brand-400"></i> Interactive Live Preview
+                            </h4>
+                            <div class="w-full h-80 rounded-xl overflow-hidden border border-dark-border bg-white shadow-inner">
+                                <iframe id="sitePreviewFrame" class="w-full h-full border-0"></iframe>
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- ALL HOSTED PROJECTS HISTORY BOX -->
@@ -446,8 +387,9 @@
                 <button onclick="closeCreateFileModal()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-gray-300 rounded-xl text-xs font-bold">
                     Cancel
                 </button>
-                <button onclick="applyModalToFile()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-blue-600/30">
-                    Save File & Proceed To Deploy
+                <button onclick="applyModalToFile()" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-dark-bg font-extrabold rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    Deploy & Host Live
                 </button>
             </div>
         </div>
@@ -499,21 +441,17 @@
         }
 
         function processUploadedFile(file) {
-            document.getElementById('fileName').value = file.name;
             const reader = new FileReader();
             reader.onload = function(evt) {
-                document.getElementById('sourceCode').value = evt.target.result;
-                alert('File uploaded successfully into code editor!');
-                scrollToSandbox();
+                document.getElementById('modalFileName').value = file.name;
+                document.getElementById('modalSourceCode').value = evt.target.result;
+                openCreateFileModal();
             };
             reader.readAsText(file);
         }
 
         // --- Create New File Modal Handlers ---
         function openCreateFileModal() {
-            document.getElementById('modalFileName').value = document.getElementById('fileName').value;
-            document.getElementById('modalSiteName').value = document.getElementById('siteName').value;
-            document.getElementById('modalSourceCode').value = document.getElementById('sourceCode').value;
             document.getElementById('createFileModal').classList.remove('hidden');
         }
 
@@ -522,11 +460,17 @@
         }
 
         function applyModalToFile() {
-            document.getElementById('fileName').value = document.getElementById('modalFileName').value;
-            document.getElementById('siteName').value = document.getElementById('modalSiteName').value;
-            document.getElementById('sourceCode').value = document.getElementById('modalSourceCode').value;
+            const fileName = document.getElementById('modalFileName').value.trim() || 'index.html';
+            const siteName = document.getElementById('modalSiteName').value.trim() || 'my-hassan-site';
+            const sourceCode = document.getElementById('modalSourceCode').value;
+
+            document.getElementById('activeFileName').value = fileName;
+            document.getElementById('activeSiteName').value = siteName;
+            document.getElementById('activeSourceCode').value = sourceCode;
+
             closeCreateFileModal();
             scrollToSandbox();
+            executeDeployment(fileName, siteName, sourceCode);
         }
 
         // --- HOSTED PROJECTS HISTORY SYSTEM ---
@@ -537,7 +481,6 @@
 
         function saveProjectToHistory(siteName, fileName) {
             let history = getProjectsHistory();
-            // Remove existing duplicate if any
             history = history.filter(item => item.siteName !== siteName);
             
             const newProject = {
@@ -620,43 +563,24 @@
         }
 
         // --- DEPLOYMENT ENGINE LOGIC ---
-        function handleDeploy(e) {
-            e.preventDefault();
-
-            const fileName = document.getElementById('fileName').value.trim();
-            const rawSiteName = document.getElementById('siteName').value.trim();
-            const sourceCode = document.getElementById('sourceCode').value;
-
-            // Sanitize site name
+        function executeDeployment(fileName, rawSiteName, sourceCode) {
             const cleanSiteName = rawSiteName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
             currentSiteName = cleanSiteName;
 
-            // Save user code into localStorage for persistent client-side route rendering
-            localStorage.setItem('hassan_site_' + cleanSiteName, sourceCode);
-
-            // Save into History list
-            saveProjectToHistory(cleanSiteName, fileName);
-
-            // Construct Without API URL
             const baseUrl = window.location.origin + window.location.pathname;
             currentLiveUrl = `${baseUrl}?site=${cleanSiteName}`;
 
-            const deployBtn = document.getElementById('deployBtn');
             const processDiv = document.getElementById('deploymentProcess');
             const resultDiv = document.getElementById('deploymentResult');
             const terminal = document.getElementById('terminalLogs');
             const progressBar = document.getElementById('progressBar');
             const timerCountdown = document.getElementById('timerCountdown');
 
-            // Reset UI
-            deployBtn.disabled = true;
-            deployBtn.classList.add('opacity-50', 'cursor-not-allowed');
             resultDiv.classList.add('hidden');
             processDiv.classList.remove('hidden');
             terminal.innerHTML = '';
             progressBar.style.width = '0%';
 
-            // Deployment Steps Sequence for exactly 20 Seconds Simulation
             const totalDuration = 20;
             let secondsLeft = totalDuration;
 
@@ -694,11 +618,15 @@
                 }, step.time * 1000);
             });
 
+            // FINALIZE AFTER EXACTLY 20 SECONDS
             setTimeout(() => {
-                deployBtn.disabled = false;
-                deployBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                // Save code into LocalStorage after 20 seconds completion
+                localStorage.setItem('hassan_site_' + cleanSiteName, sourceCode);
 
-                // Render in local iframe preview box
+                // Add to History ONLY NOW after 20 seconds finish
+                saveProjectToHistory(cleanSiteName, fileName);
+
+                // Render live preview
                 const frame = document.getElementById('sitePreviewFrame');
                 const frameDoc = frame.contentDocument || frame.contentWindow.document;
                 frameDoc.open();
@@ -737,7 +665,6 @@
                 const mainDash = document.getElementById('mainDashboard');
                 const frame = document.getElementById('hostedSiteFrame');
 
-                // Hide main dashboard and show ONLY clean fullscreen iframe view
                 mainDash.style.display = 'none';
                 hostedView.classList.remove('hidden');
 
