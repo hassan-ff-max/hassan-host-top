@@ -16,8 +16,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
-    <!-- JSZip Library for Zipped/Multiple Files Handling -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -57,7 +58,6 @@
         #redeploy-editor-textarea + .CodeMirror {
             height: 380px !important;
         }
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -76,7 +76,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between" id="app-body">
 
-    <!-- TOP NAVIGATION BAR (PREVENTS ACCIDENTAL PAGE REFRESH TO PROTECT CODE) -->
+    <!-- TOP NAVIGATION BAR -->
     <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3 select-none">
@@ -112,7 +112,6 @@
         <!-- HOSTING ENGINE CONTAINER -->
         <div id="deploy-section" class="max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
             
-            <!-- SECTION HEADING -->
             <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
                 <div class="flex items-center space-x-3">
                     <i class="fa-solid fa-cloud-arrow-up text-blue-500 text-2xl"></i>
@@ -127,7 +126,7 @@
                 </button>
             </div>
 
-            <!-- STEP 1: WEBSITE / SUBDOMAIN NAME INPUT WITH REALTIME TYPING PREVIEW -->
+            <!-- STEP 1: WEBSITE NAME INPUT -->
             <div class="mb-6">
                 <label for="site-name-input" class="block text-sm font-semibold text-slate-300 mb-2">
                     <i class="fa-solid fa-globe text-blue-400 mr-1.5"></i> 1. Enter Your Website Name (Subdomain):
@@ -135,14 +134,13 @@
                 <div class="flex rounded-xl shadow-sm border border-slate-700 bg-slate-950 focus-within:border-blue-500 overflow-hidden transition mb-2">
                     <input type="text" id="site-name-input" placeholder="host-by-me" oninput="updateRealtimeUrlPreview(this.value)" class="w-full bg-transparent px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-sm font-mono">
                 </div>
-                <!-- REALTIME URL PREVIEW DISPLAY -->
                 <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2 flex items-center justify-between text-xs font-mono">
                     <span class="text-slate-400">Live URL Preview:</span>
                     <span id="realtime-url-display" class="text-blue-400 font-bold truncate">https://hassan-host-top.vercel.app/?site=host-by-me</span>
                 </div>
             </div>
 
-            <!-- STEP 2: MULTI-FILE DRAG & DROP ZONE -->
+            <!-- STEP 2: DRAG & DROP ZONE -->
             <div class="mb-6">
                 <label class="block text-sm font-semibold text-slate-300 mb-2">
                     <i class="fa-solid fa-folder-open text-blue-400 mr-1.5"></i> 2. Drag & Drop All Website Files (HTML, CSS, JS, Images, TXT):
@@ -161,19 +159,17 @@
                     </p>
                 </div>
 
-                <!-- FILE LIST PREVIEW CONTAINER -->
                 <div id="file-list-container" class="mt-4 hidden">
                     <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
                         <span>Selected Files (<span id="file-count">0</span>):</span>
                         <button onclick="clearFiles()" class="text-rose-400 hover:underline">Clear all</button>
                     </div>
                     <div id="file-list" class="max-h-40 overflow-y-auto space-y-1.5 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-300">
-                        <!-- Loaded files list dynamically inserted here -->
                     </div>
                 </div>
             </div>
 
-            <!-- STEP 3: PROFESSIONAL TOGGLE-STYLE SECURITY & PASSWORD OPTIONS -->
+            <!-- STEP 3: SECURITY / PASSWORD TOGGLE -->
             <div class="mb-6 bg-slate-950/60 p-4 border border-slate-800 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
@@ -185,7 +181,6 @@
                             <span class="text-[11px] text-slate-500 block">Require key to view website</span>
                         </div>
                     </div>
-                    <!-- Stylish Toggle Switch -->
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="enable-pass-check" onchange="togglePasswordFields(this.checked)" class="sr-only peer">
                         <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
@@ -200,12 +195,11 @@
                     <div>
                         <label class="block text-[11px] text-slate-400 mb-1 font-semibold">Developer WhatsApp Number (For GET KEY button):</label>
                         <input type="text" id="site-whatsapp-input" value="923233829598" placeholder="e.g. 923233829598" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
-                        <p class="text-[10px] text-slate-500 mt-1">Visitors without password can click "GET KEY" to request key via WhatsApp.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- ACTION BUTTONS: DEPLOY & LIVE PREVIEW -->
+            <!-- ACTION BUTTONS -->
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
                 <button onclick="openLivePreviewModal()" class="sm:col-span-1 py-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl transition flex items-center justify-center space-x-2 text-sm border border-slate-700">
                     <i class="fa-solid fa-eye text-blue-400"></i>
@@ -217,23 +211,22 @@
                 </button>
             </div>
 
-            <!-- 30-SECOND LIVE DEPLOYMENT PROGRESS OVERLAY -->
+            <!-- 30-SECOND TIMER OVERLAY -->
             <div id="deployment-progress" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-6 text-center">
                 <div class="w-16 h-16 relative mb-4">
                     <div class="w-16 h-16 rounded-full border-4 border-slate-700 border-t-blue-500 animate-spin"></div>
                     <div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-blue-400" id="progress-percent">0%</div>
                 </div>
                 <h3 class="text-xl font-bold text-white mb-2" id="deploy-status-title">Deploying Your Website...</h3>
-                <p class="text-xs text-slate-400 max-w-md font-mono mb-4" id="deploy-status-detail">Initializing project structure...</p>
+                <p class="text-xs text-slate-400 max-w-md font-mono mb-4" id="deploy-status-detail font-mono">Initializing project structure...</p>
                 
-                <!-- Progress bar track -->
                 <div class="w-full max-w-md bg-slate-800 h-2 rounded-full overflow-hidden">
                     <div id="progress-bar-fill" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full w-0 transition-all duration-300"></div>
                 </div>
                 <p class="text-[11px] text-slate-500 mt-4">Process takes ~30 seconds for optimization & global CDN distribution.</p>
             </div>
 
-            <!-- SUCCESSFUL DEPLOYMENT RESULT BOX -->
+            <!-- RESULT BOX -->
             <div id="deploy-result" class="hidden mt-6 p-6 bg-emerald-950/40 border border-emerald-500/30 rounded-2xl text-center">
                 <div class="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 text-xl mx-auto mb-3">
                     <i class="fa-solid fa-check"></i>
@@ -260,11 +253,11 @@
 
         </div>
 
-        <!-- ALL HOSTED PROJECTS HISTORY SECTION -->
+        <!-- LOCAL HISTORY SECTION -->
         <div class="max-w-3xl mx-auto mt-12">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> All Hosted Projects History
+                    <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> My Device History
                 </h3>
                 <span id="history-counter" class="text-xs bg-slate-800 text-slate-400 px-2.5 py-1 rounded-full border border-slate-700">0 Projects</span>
             </div>
@@ -276,7 +269,23 @@
             </div>
         </div>
 
-        <!-- REPORT ISSUES / BUGS / FEATURE REQUEST FORM -->
+        <!-- 🌐 GLOBAL HOSTED PROJECTS LIST (FIREBASE SYNCED) -->
+        <div class="max-w-3xl mx-auto mt-12">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-earth-americas text-emerald-400 animate-pulse"></i> Global Live Hosted Projects
+                </h3>
+                <span id="global-counter" class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-mono">Live Sync</span>
+            </div>
+
+            <div id="global-container" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 divide-y divide-slate-800 max-h-80 overflow-y-auto">
+                <div id="empty-global" class="text-center py-8 text-slate-500 text-sm">
+                    Loading global hosted websites...
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORT FORM -->
         <div class="max-w-3xl mx-auto mt-12 bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
             <div class="flex items-center space-x-3 mb-4 pb-3 border-b border-slate-800">
                 <i class="fa-solid fa-bug text-rose-400 text-xl"></i>
@@ -330,7 +339,7 @@
         </div>
     </div>
 
-    <!-- CREATE NEW FILE MODAL (SINGLE FILE EDITOR WITH CODEMIRROR) -->
+    <!-- CODE EDITOR MODAL -->
     <div id="single-file-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
@@ -367,7 +376,7 @@
         </div>
     </div>
 
-    <!-- FULLSCREEN PENCIL EDIT & RE-DEPLOY OVERLAY PAGE -->
+    <!-- FULLSCREEN PENCIL EDIT OVERLAY -->
     <div id="redeploy-overlay-page" class="fixed inset-0 bg-slate-950 z-50 hidden flex flex-col">
         <div class="h-16 border-b border-slate-800 bg-slate-900 px-6 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -425,8 +434,34 @@
         </div>
     </footer>
 
-    <!-- CLIENT-SIDE HOSTING ENGINE JAVASCRIPT -->
+    <!-- CLIENT-SIDE ENGINE & FIREBASE GLOBAL SYNC JAVASCRIPT -->
     <script>
+        // ----------------------------------------------------
+        // 🔑 FIREBASE CONFIGURATION (ENTER YOUR FIREBASE DETAILS BELOW)
+        // ----------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-MyEeRIlykX1p9Zwy8Q15MCQIfk7hOkM",
+            authDomain: "hassanhost.firebaseapp.com.firebaseapp.com",
+            databaseURL: "https://hassanhost-default-rtdb.firebaseio.com",
+            projectId: "hassanhost",
+            storageBucket: "hassanhost.firebasestorage.app.appspot.com",
+            messagingSenderId: "1098600170460",
+            appId: "1:1098600170460:web:e642da459dbcd0eea30519"
+        };
+
+        // Initialize Firebase
+        let firebaseApp = null;
+        let firebaseDB = null;
+        
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firebaseDB = firebase.database();
+            }
+        } catch (e) {
+            console.log("Firebase initialized in fallback mode until keys are entered.");
+        }
+
         let currentProjectFiles = [];
         let isRedeployMode = false;
         let codeMirrorEditor = null;
@@ -458,6 +493,7 @@
             }
 
             renderHistory();
+            listenGlobalProjects();
             setupDragAndDrop();
         };
 
@@ -734,7 +770,7 @@
             progressOverlay.classList.remove('hidden');
 
             let seconds = 0;
-            const totalDuration = 30; // UPDATED TO 30 SECONDS
+            const totalDuration = 30; // 30 SECONDS TIMER
 
             const steps = [
                 "Extracting project bundle & verifying files...",
@@ -794,13 +830,23 @@
             });
             localStorage.setItem('hh_history', JSON.stringify(history));
 
+            const basePath = window.location.pathname.replace('index.html', '');
+            const liveUrl = `${window.location.origin}${basePath}?site=${siteName}`;
+
+            // PUSH TO FIREBASE GLOBAL REALTIME DATABASE
+            if (firebaseDB) {
+                firebaseDB.ref('global_projects/' + siteName).set({
+                    siteName: siteName,
+                    liveUrl: liveUrl,
+                    timestamp: projectData.timestamp,
+                    fileCount: files.length
+                });
+            }
+
             const resultBox = document.getElementById('deploy-result');
             const resultUrlInput = document.getElementById('result-url');
             const viewBtn = document.getElementById('result-view-btn');
             const resultHeading = document.getElementById('result-heading');
-
-            const basePath = window.location.pathname.replace('index.html', '');
-            const liveUrl = `${window.location.origin}${basePath}?site=${siteName}`;
             
             resultUrlInput.value = liveUrl;
             viewBtn.href = liveUrl;
@@ -836,7 +882,6 @@
             clearFiles();
         }
 
-        // STYLISH & PROFESSIONAL PASSWORD ACCESS DIALOG DIALOG WITH OPPOSITE DONE & GET KEY BUTTONS
         function renderHostedWebsite(siteName) {
             const rawData = localStorage.getItem('hh_site_' + siteName);
             
@@ -972,6 +1017,54 @@
                     </div>
                 `;
                 container.appendChild(row);
+            });
+        }
+
+        // LISTEN TO FIREBASE REALTIME GLOBAL PROJECTS
+        function listenGlobalProjects() {
+            const container = document.getElementById('global-container');
+
+            if (!firebaseDB) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-slate-500 text-xs">
+                        Configure Firebase credentials above to see live global projects from all users.
+                    </div>
+                `;
+                return;
+            }
+
+            firebaseDB.ref('global_projects').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">No global projects hosted yet.</div>`;
+                    return;
+                }
+
+                container.innerHTML = '';
+                Object.values(data).reverse().forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs';
+                    row.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-globe text-xs"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-white text-sm font-mono">${item.siteName}</div>
+                                <div class="text-slate-500 text-[11px]">${item.timestamp}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <a href="${item.liveUrl}" target="_blank" class="px-3 py-1.5 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 rounded-lg transition font-medium">
+                                <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Visit Site
+                            </a>
+                            <button onclick="copyLink('${item.liveUrl}')" class="px-3 py-1.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg transition">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                });
             });
         }
 
