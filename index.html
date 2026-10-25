@@ -99,7 +99,7 @@
                 <div class="flex items-center space-x-3">
                     <i class="fa-solid fa-cloud-arrow-up text-blue-500 text-2xl"></i>
                     <div>
-                        <h2 class="text-lg font-bold text-white">Deploy New Project</h2>
+                        <h2 id="engine-title-text" class="text-lg font-bold text-white">Deploy New Project</h2>
                         <p class="text-xs text-slate-400">Upload multiple files or create single HTML code</p>
                     </div>
                 </div>
@@ -115,12 +115,12 @@
                     <i class="fa-solid fa-globe text-blue-400 mr-1.5"></i> 1. Enter Your Website Name (Subdomain):
                 </label>
                 <div class="flex rounded-xl shadow-sm border border-slate-700 bg-slate-950 focus-within:border-blue-500 overflow-hidden transition mb-2">
-                    <input type="text" id="site-name-input" placeholder="shivam" oninput="updateRealtimeUrlPreview(this.value)" class="w-full bg-transparent px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-sm font-mono">
+                    <input type="text" id="site-name-input" placeholder="host-by-me" oninput="updateRealtimeUrlPreview(this.value)" class="w-full bg-transparent px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-sm font-mono">
                 </div>
                 <!-- REALTIME URL PREVIEW DISPLAY -->
                 <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2 flex items-center justify-between text-xs font-mono">
                     <span class="text-slate-400">Live URL Preview:</span>
-                    <span id="realtime-url-display" class="text-blue-400 font-bold truncate">https://hassan-host-top.vercel.app/?site=your-name</span>
+                    <span id="realtime-url-display" class="text-blue-400 font-bold truncate">https://hassan-host-top.vercel.app/view.php?site=host-by-me</span>
                 </div>
             </div>
 
@@ -158,7 +158,7 @@
             <!-- STEP 3: DEPLOY BUTTON -->
             <button id="deploy-btn" onclick="startDeployment()" class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2 text-base">
                 <i class="fa-solid fa-bolt"></i>
-                <span>Deploy & Live Host Website</span>
+                <span id="deploy-btn-text">Deploy & Live Host Website</span>
             </button>
 
             <!-- 20-SECOND LIVE DEPLOYMENT PROGRESS OVERLAY -->
@@ -182,7 +182,7 @@
                 <div class="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 text-xl mx-auto mb-3">
                     <i class="fa-solid fa-check"></i>
                 </div>
-                <h3 class="text-lg font-bold text-white mb-1">Website Hosted Successfully!</h3>
+                <h3 id="result-heading" class="text-lg font-bold text-white mb-1">Website Hosted Successfully!</h3>
                 <p class="text-xs text-slate-400 mb-4">Your multi-file website is active and live on HassanHost engine.</p>
                 
                 <div class="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800 mb-4">
@@ -227,7 +227,7 @@
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-code text-blue-400"></i> Create Single File Code
+                    <i class="fa-solid fa-code text-blue-400"></i> Create / Edit Single File Code
                 </h3>
                 <button onclick="toggleSingleFileModal(false)" class="text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -263,11 +263,13 @@
     <!-- CLIENT-SIDE HOSTING ENGINE JAVASCRIPT -->
     <script>
         let currentProjectFiles = [];
+        let isRedeployMode = false;
 
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const siteQuery = urlParams.get('site');
 
+            // Support both view.php?site=name and ?site=name
             if (siteQuery) {
                 renderHostedWebsite(siteQuery);
                 return;
@@ -277,14 +279,16 @@
             setupDragAndDrop();
         };
 
-        // REALTIME URL PREVIEW UPDATER
+        // REALTIME URL PREVIEW UPDATER USING VIEW.PHP ROUTE FORMAT
         function updateRealtimeUrlPreview(val) {
             const cleanVal = val.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
             const display = document.getElementById('realtime-url-display');
+            const basePath = window.location.pathname.replace('index.html', '');
+            
             if (cleanVal.length > 0) {
-                display.innerText = `${window.location.origin}${window.location.pathname}?site=${cleanVal}`;
+                display.innerText = `${window.location.origin}${basePath}view.php?site=${cleanVal}`;
             } else {
-                display.innerText = `${window.location.origin}${window.location.pathname}?site=your-name`;
+                display.innerText = `${window.location.origin}${basePath}view.php?site=host-by-me`;
             }
         }
 
@@ -389,15 +393,44 @@
                 return;
             }
 
-            currentProjectFiles.push({
-                name: fileName,
-                type: 'text/html',
-                content: code
-            });
+            const existingIdx = currentProjectFiles.findIndex(f => f.name.toLowerCase() === fileName.toLowerCase());
+            if (existingIdx !== -1) {
+                currentProjectFiles[existingIdx].content = code;
+            } else {
+                currentProjectFiles.push({
+                    name: fileName,
+                    type: 'text/html',
+                    content: code
+                });
+            }
 
             updateFileListUI();
             toggleSingleFileModal(false);
             document.getElementById('modal-code').value = '';
+        }
+
+        // EDIT PROJECT FROM HISTORY (PENCIL ICON)
+        function editProject(siteName) {
+            const rawData = localStorage.getItem('hh_site_' + siteName);
+            if (!rawData) return;
+
+            const project = JSON.parse(rawData);
+            currentProjectFiles = project.files;
+            
+            const siteInput = document.getElementById('site-name-input');
+            siteInput.value = siteName;
+            siteInput.disabled = true; // Lock subdomain during editing
+
+            updateRealtimeUrlPreview(siteName);
+            updateFileListUI();
+
+            // Set UI to Redeploy Mode
+            isRedeployMode = true;
+            document.getElementById('engine-title-text').innerText = "Re-deploy Project (" + siteName + ")";
+            document.getElementById('deploy-btn-text').innerText = "Re-deploy & Update Website";
+
+            // Scroll smoothly to section
+            document.getElementById('deploy-section').scrollIntoView({ behavior: 'smooth' });
         }
 
         function startDeployment() {
@@ -424,7 +457,14 @@
             const percentText = document.getElementById('progress-percent');
             const progressBar = document.getElementById('progress-bar-fill');
             const statusDetail = document.getElementById('deploy-status-detail');
-            
+            const statusTitle = document.getElementById('deploy-status-title');
+
+            if (isRedeployMode) {
+                statusTitle.innerText = "Re-deploying Your Website...";
+            } else {
+                statusTitle.innerText = "Deploying Your Website...";
+            }
+
             progressOverlay.classList.remove('hidden');
 
             let seconds = 0;
@@ -480,10 +520,19 @@
             const resultBox = document.getElementById('deploy-result');
             const resultUrlInput = document.getElementById('result-url');
             const viewBtn = document.getElementById('result-view-btn');
+            const resultHeading = document.getElementById('result-heading');
 
-            const liveUrl = `${window.location.origin}${window.location.pathname}?site=${siteName}`;
+            const basePath = window.location.pathname.replace('index.html', '');
+            const liveUrl = `${window.location.origin}${basePath}view.php?site=${siteName}`;
+            
             resultUrlInput.value = liveUrl;
             viewBtn.href = liveUrl;
+
+            if (isRedeployMode) {
+                resultHeading.innerText = "Website Re-deployed Successfully!";
+            } else {
+                resultHeading.innerText = "Website Hosted Successfully!";
+            }
 
             resultBox.classList.remove('hidden');
             renderHistory();
@@ -497,8 +546,15 @@
         }
 
         function resetDeployForm() {
+            isRedeployMode = false;
+            document.getElementById('engine-title-text').innerText = "Deploy New Project";
+            document.getElementById('deploy-btn-text').innerText = "Deploy & Live Host Website";
+            
+            const siteInput = document.getElementById('site-name-input');
+            siteInput.value = '';
+            siteInput.disabled = false;
+
             document.getElementById('deploy-result').classList.add('hidden');
-            document.getElementById('site-name-input').value = '';
             updateRealtimeUrlPreview('');
             clearFiles();
         }
@@ -550,8 +606,10 @@
             }
 
             container.innerHTML = '';
+            const basePath = window.location.pathname.replace('index.html', '');
+
             history.forEach(item => {
-                const liveUrl = `${window.location.origin}${window.location.pathname}?site=${item.siteName}`;
+                const liveUrl = `${window.location.origin}${basePath}view.php?site=${item.siteName}`;
                 const row = document.createElement('div');
                 row.className = 'py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs';
                 row.innerHTML = `
@@ -568,6 +626,9 @@
                         <a href="${liveUrl}" target="_blank" class="px-3 py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 rounded-lg transition font-medium">
                             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>View
                         </a>
+                        <button onclick="editProject('${item.siteName}')" title="Edit Code & Re-deploy" class="px-3 py-1.5 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 rounded-lg transition">
+                            <i class="fa-solid fa-pencil"></i>
+                        </button>
                         <button onclick="copyLink('${liveUrl}')" class="px-3 py-1.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg transition">
                             <i class="fa-regular fa-copy"></i>
                         </button>
