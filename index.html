@@ -87,7 +87,7 @@
                 <span class="gradient-text">Instant & Free Forever</span>
             </h1>
             <p class="text-slate-400 text-lg">
-                Drag and drop your HTML, CSS, JS, Images, or even 20–30 multi-file web projects. Get a real working link on your domain in seconds!
+                Drag and drop your HTML, CSS, JS, Images, or multi-file web projects. Get a real working link on your domain in seconds!
             </p>
         </div>
 
@@ -109,23 +109,25 @@
                 </button>
             </div>
 
-            <!-- STEP 1: WEBSITE / SUBDOMAIN NAME INPUT -->
+            <!-- STEP 1: WEBSITE / SUBDOMAIN NAME INPUT WITH REALTIME TYPING PREVIEW -->
             <div class="mb-6">
                 <label for="site-name-input" class="block text-sm font-semibold text-slate-300 mb-2">
                     <i class="fa-solid fa-globe text-blue-400 mr-1.5"></i> 1. Enter Your Website Name (Subdomain):
                 </label>
-                <div class="flex rounded-xl shadow-sm border border-slate-700 bg-slate-950 focus-within:border-blue-500 overflow-hidden transition">
-                    <input type="text" id="site-name-input" placeholder="my-awesome-site" class="w-full bg-transparent px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-sm font-mono">
-                    <span class="inline-flex items-center px-4 bg-slate-800 text-slate-400 text-xs font-mono border-l border-slate-700">
-                        .hassan-host-top.vercel.app
-                    </span>
+                <div class="flex rounded-xl shadow-sm border border-slate-700 bg-slate-950 focus-within:border-blue-500 overflow-hidden transition mb-2">
+                    <input type="text" id="site-name-input" placeholder="shivam" oninput="updateRealtimeUrlPreview(this.value)" class="w-full bg-transparent px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-sm font-mono">
+                </div>
+                <!-- REALTIME URL PREVIEW DISPLAY -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2 flex items-center justify-between text-xs font-mono">
+                    <span class="text-slate-400">Live URL Preview:</span>
+                    <span id="realtime-url-display" class="text-blue-400 font-bold truncate">https://hassan-host-top.vercel.app/?site=your-name</span>
                 </div>
             </div>
 
             <!-- STEP 2: MULTI-FILE DRAG & DROP ZONE -->
             <div class="mb-6">
                 <label class="block text-sm font-semibold text-slate-300 mb-2">
-                    <i class="fa-solid fa-folder-open text-blue-400 mr-1.5"></i> 2. Drag & Drop All Website Files (20-30 Files Supported):
+                    <i class="fa-solid fa-folder-open text-blue-400 mr-1.5"></i> 2. Drag & Drop All Website Files (HTML, CSS, JS, Images, TXT):
                 </label>
                 
                 <div id="drop-zone" onclick="document.getElementById('file-input').click()" class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-2xl p-8 text-center bg-slate-950/50 hover:bg-slate-900 cursor-pointer transition flex flex-col items-center justify-center min-h-[180px] group">
@@ -137,7 +139,7 @@
                         Click to browse or Drag & Drop project files here
                     </p>
                     <p class="text-xs text-slate-400 mt-1">
-                        Supports .html, .css, .js, .png, .jpg, .svg, .json files or ZIP archives
+                        Supports .html, .css, .js, .txt, .png, .jpg, .svg, .json files
                     </p>
                 </div>
 
@@ -215,7 +217,6 @@
                 <div id="empty-history" class="text-center py-8 text-slate-500 text-sm">
                     No hosted projects yet. Upload files above to view history here!
                 </div>
-                <!-- Dynamic history list items added here -->
             </div>
         </div>
 
@@ -259,14 +260,11 @@
         </div>
     </footer>
 
-    <!-- CLIENT-SIDE HOSTING ENGINE ENGINE JAVASCRIPT -->
+    <!-- CLIENT-SIDE HOSTING ENGINE JAVASCRIPT -->
     <script>
-        // Global project files store
         let currentProjectFiles = [];
 
-        // INITIALIZE ON LOAD
         window.onload = function() {
-            // Check if URL parameters request a hosted site (e.g. ?site=my-site)
             const urlParams = new URLSearchParams(window.location.search);
             const siteQuery = urlParams.get('site');
 
@@ -275,12 +273,21 @@
                 return;
             }
 
-            // Load existing history
             renderHistory();
             setupDragAndDrop();
         };
 
-        // DRAG AND DROP HANDLERS
+        // REALTIME URL PREVIEW UPDATER
+        function updateRealtimeUrlPreview(val) {
+            const cleanVal = val.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+            const display = document.getElementById('realtime-url-display');
+            if (cleanVal.length > 0) {
+                display.innerText = `${window.location.origin}${window.location.pathname}?site=${cleanVal}`;
+            } else {
+                display.innerText = `${window.location.origin}${window.location.pathname}?site=your-name`;
+            }
+        }
+
         function setupDragAndDrop() {
             const dropZone = document.getElementById('drop-zone');
 
@@ -324,7 +331,6 @@
                     updateFileListUI();
                 };
                 
-                // Read text files as text, others as data URL
                 if (file.name.match(/\.(html|htm|css|js|json|txt|md|svg)$/i)) {
                     reader.readAsText(file);
                 } else {
@@ -368,7 +374,6 @@
             updateFileListUI();
         }
 
-        // SINGLE FILE MODAL
         function toggleSingleFileModal(show) {
             const modal = document.getElementById('single-file-modal');
             if (show) modal.classList.remove('hidden');
@@ -395,7 +400,6 @@
             document.getElementById('modal-code').value = '';
         }
 
-        // 20-SECOND DEPLOYMENT PROCESS
         function startDeployment() {
             const siteNameInput = document.getElementById('site-name-input');
             const siteName = siteNameInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
@@ -411,23 +415,20 @@
                 return;
             }
 
-            // Ensure index.html exists
             const hasIndex = currentProjectFiles.some(f => f.name.toLowerCase() === 'index.html');
             if (!hasIndex && currentProjectFiles.length === 1) {
                 currentProjectFiles[0].name = 'index.html';
             }
 
-            // Show progress overlay
             const progressOverlay = document.getElementById('deployment-progress');
             const percentText = document.getElementById('progress-percent');
             const progressBar = document.getElementById('progress-bar-fill');
-            const statusTitle = document.getElementById('deploy-status-title');
             const statusDetail = document.getElementById('deploy-status-detail');
             
             progressOverlay.classList.remove('hidden');
 
             let seconds = 0;
-            const totalDuration = 20; // Exact 20 seconds requirement
+            const totalDuration = 20;
 
             const steps = [
                 "Extracting project bundle & verifying files...",
@@ -453,14 +454,11 @@
                 if (seconds >= totalDuration) {
                     clearInterval(timer);
                     progressOverlay.classList.add('hidden');
-
-                    // SAVE PROJECT TO LOCAL STORAGE & HISTORY ONLY AFTER 20 SECONDS
                     saveProjectLocally(siteName, currentProjectFiles);
                 }
             }, 500);
         }
 
-        // SAVE & COMPLETE DEPLOYMENT
         function saveProjectLocally(siteName, files) {
             const projectData = {
                 siteName: siteName,
@@ -468,10 +466,8 @@
                 files: files
             };
 
-            // Save project content
             localStorage.setItem('hh_site_' + siteName, JSON.stringify(projectData));
 
-            // Save to history list
             let history = JSON.parse(localStorage.getItem('hh_history') || '[]');
             history = history.filter(h => h.siteName !== siteName);
             history.unshift({
@@ -481,7 +477,6 @@
             });
             localStorage.setItem('hh_history', JSON.stringify(history));
 
-            // Show result
             const resultBox = document.getElementById('deploy-result');
             const resultUrlInput = document.getElementById('result-url');
             const viewBtn = document.getElementById('result-view-btn');
@@ -504,10 +499,10 @@
         function resetDeployForm() {
             document.getElementById('deploy-result').classList.add('hidden');
             document.getElementById('site-name-input').value = '';
+            updateRealtimeUrlPreview('');
             clearFiles();
         }
 
-        // RENDER HOSTED WEBSITE CLEANLY WITHOUT ANY DASHBOARD OVERLAY
         function renderHostedWebsite(siteName) {
             const rawData = localStorage.getItem('hh_site_' + siteName);
             
@@ -530,13 +525,14 @@
                 return;
             }
 
-            // Replace HTML entirely without adding any top bar or wrapper elements
-            document.open();
-            document.write(indexFile.content);
-            document.close();
+            const blob = new Blob([indexFile.content], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+
+            document.body.innerHTML = `
+                <iframe src="${blobUrl}" style="position:fixed; top:0; left:0; width:100%; height:100%; border:none; margin:0; padding:0; z-index:999999; background:#ffffff;"></iframe>
+            `;
         }
 
-        // RENDER HISTORY SECTION
         function renderHistory() {
             const container = document.getElementById('history-container');
             const counter = document.getElementById('history-counter');
@@ -564,7 +560,7 @@
                             <i class="fa-solid fa-check text-xs"></i>
                         </div>
                         <div>
-                            <div class="font-bold text-white text-sm font-mono">${item.siteName}.hassan-host-top.vercel.app</div>
+                            <div class="font-bold text-white text-sm font-mono">${item.siteName}</div>
                             <div class="text-slate-500 text-[11px]">${item.timestamp} • ${item.fileCount} File(s)</div>
                         </div>
                     </div>
