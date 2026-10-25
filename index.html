@@ -55,7 +55,7 @@
             padding: 8px;
         }
         #redeploy-editor-textarea + .CodeMirror {
-            height: 400px !important;
+            height: 380px !important;
         }
         /* Custom scrollbar */
         ::-webkit-scrollbar {
@@ -76,10 +76,10 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between" id="app-body">
 
-    <!-- TOP NAVIGATION BAR -->
+    <!-- TOP NAVIGATION BAR (PREVENTS ACCIDENTAL PAGE REFRESH TO PROTECT CODE) -->
     <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.href=window.location.pathname">
+            <div class="flex items-center space-x-3 select-none">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-blue-500/30">
                     H
                 </div>
@@ -88,9 +88,9 @@
             </div>
             
             <div class="flex items-center space-x-4">
-                <a href="#deploy-section" class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition shadow-md shadow-blue-600/20">
+                <button onclick="scrollToDeploySection()" class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition shadow-md shadow-blue-600/20">
                     <i class="fa-solid fa-rocket mr-2"></i>Host Now
-                </a>
+                </button>
             </div>
         </div>
     </header>
@@ -135,7 +135,7 @@
                 <div class="flex rounded-xl shadow-sm border border-slate-700 bg-slate-950 focus-within:border-blue-500 overflow-hidden transition mb-2">
                     <input type="text" id="site-name-input" placeholder="host-by-me" oninput="updateRealtimeUrlPreview(this.value)" class="w-full bg-transparent px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-sm font-mono">
                 </div>
-                <!-- REALTIME URL PREVIEW DISPLAY (FIXED CLEAN ROUTE FORMAT TO PREVENT VERCEL 403 ERROR) -->
+                <!-- REALTIME URL PREVIEW DISPLAY -->
                 <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2 flex items-center justify-between text-xs font-mono">
                     <span class="text-slate-400">Live URL Preview:</span>
                     <span id="realtime-url-display" class="text-blue-400 font-bold truncate">https://hassan-host-top.vercel.app/?site=host-by-me</span>
@@ -173,23 +173,33 @@
                 </div>
             </div>
 
-            <!-- STEP 3: PASSWORD PROTECTION & WHATSAPP KEY OPTION -->
-            <div class="mb-6 bg-slate-950/60 p-4 border border-slate-800 rounded-xl space-y-3">
+            <!-- STEP 3: PROFESSIONAL TOGGLE-STYLE SECURITY & PASSWORD OPTIONS -->
+            <div class="mb-6 bg-slate-950/60 p-4 border border-slate-800 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
-                    <label class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-lock text-amber-400"></i> Enable Password Protection (Optional):
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                            <i class="fa-solid fa-shield-halved text-sm"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-slate-200 block">Password Access Key Protection</span>
+                            <span class="text-[11px] text-slate-500 block">Require key to view website</span>
+                        </div>
+                    </div>
+                    <!-- Stylish Toggle Switch -->
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="enable-pass-check" onchange="togglePasswordFields(this.checked)" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
                     </label>
-                    <input type="checkbox" id="enable-pass-check" onchange="togglePasswordFields(this.checked)" class="w-4 h-4 accent-blue-600 rounded cursor-pointer">
                 </div>
 
-                <div id="password-options-box" class="hidden space-y-3 pt-2 border-t border-slate-800">
+                <div id="password-options-box" class="hidden space-y-3 pt-3 border-t border-slate-800">
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Set Site Access Password / Key:</label>
-                        <input type="password" id="site-password-input" placeholder="Enter password for visitors" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-[11px] text-slate-400 mb-1 font-semibold">Set Site Access Password / Key:</label>
+                        <input type="password" id="site-password-input" placeholder="Enter password for visitors" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
                     </div>
                     <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Developer WhatsApp Number (For "GET KEY" Button):</label>
-                        <input type="text" id="site-whatsapp-input" value="923233829598" placeholder="e.g. 923233829598" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[11px] text-slate-400 mb-1 font-semibold">Developer WhatsApp Number (For GET KEY button):</label>
+                        <input type="text" id="site-whatsapp-input" value="923233829598" placeholder="e.g. 923233829598" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
                         <p class="text-[10px] text-slate-500 mt-1">Visitors without password can click "GET KEY" to request key via WhatsApp.</p>
                     </div>
                 </div>
@@ -207,7 +217,7 @@
                 </button>
             </div>
 
-            <!-- 20-SECOND LIVE DEPLOYMENT PROGRESS OVERLAY -->
+            <!-- 30-SECOND LIVE DEPLOYMENT PROGRESS OVERLAY -->
             <div id="deployment-progress" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-6 text-center">
                 <div class="w-16 h-16 relative mb-4">
                     <div class="w-16 h-16 rounded-full border-4 border-slate-700 border-t-blue-500 animate-spin"></div>
@@ -220,7 +230,7 @@
                 <div class="w-full max-w-md bg-slate-800 h-2 rounded-full overflow-hidden">
                     <div id="progress-bar-fill" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full w-0 transition-all duration-300"></div>
                 </div>
-                <p class="text-[11px] text-slate-500 mt-4">Process takes ~20 seconds for optimization & global CDN distribution.</p>
+                <p class="text-[11px] text-slate-500 mt-4">Process takes ~30 seconds for optimization & global CDN distribution.</p>
             </div>
 
             <!-- SUCCESSFUL DEPLOYMENT RESULT BOX -->
@@ -264,6 +274,40 @@
                     No hosted projects yet. Upload files above to view history here!
                 </div>
             </div>
+        </div>
+
+        <!-- REPORT ISSUES / BUGS / FEATURE REQUEST FORM -->
+        <div class="max-w-3xl mx-auto mt-12 bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+            <div class="flex items-center space-x-3 mb-4 pb-3 border-b border-slate-800">
+                <i class="fa-solid fa-bug text-rose-400 text-xl"></i>
+                <div>
+                    <h3 class="text-base font-bold text-white">Report Issues, Bugs & Request Features</h3>
+                    <p class="text-xs text-slate-400">Found an issue or want a new feature? Contact developer directly.</p>
+                </div>
+            </div>
+
+            <form onsubmit="sendReportEmail(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1 font-semibold">Your Name</label>
+                        <input type="text" id="report-name" required placeholder="John Doe" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1 font-semibold">Your Gmail / Email</label>
+                        <input type="email" id="report-email" required placeholder="user@gmail.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1 font-semibold">Detailed Message / Issue Description</label>
+                    <textarea id="report-message" rows="4" required placeholder="Describe the bug, error, or requested feature in detail..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-blue-500"></textarea>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-paper-plane text-emerald-400"></i>
+                    <span>Send Report to ansarbubble@gmail.com</span>
+                </button>
+            </form>
         </div>
 
     </main>
@@ -336,16 +380,26 @@
         </div>
 
         <div class="flex-1 p-6 max-w-5xl mx-auto w-full flex flex-col space-y-4 overflow-y-auto">
-            <div class="bg-slate-900 p-4 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                    <label class="block text-xs text-slate-400">Target Subdomain:</label>
-                    <div id="redeploy-subdomain-display" class="font-mono text-sm text-emerald-400 font-bold"></div>
-                </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <input type="password" id="redeploy-pass-input" placeholder="Update Password (Optional)" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+            <div class="bg-slate-900 p-4 border border-slate-800 rounded-2xl flex flex-col space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <label class="block text-xs text-slate-400">Target Subdomain:</label>
+                        <div id="redeploy-subdomain-display" class="font-mono text-sm text-emerald-400 font-bold"></div>
+                    </div>
                     <button onclick="startRedeployFromOverlay()" class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold text-xs rounded-xl hover:opacity-90 transition shadow-lg shadow-amber-500/25 whitespace-nowrap">
                         <i class="fa-solid fa-bolt mr-1"></i> Re-deploy Project
                     </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800">
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Set / Update Password Protection:</label>
+                        <input type="password" id="redeploy-pass-input" placeholder="Update Access Password" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Update Developer WhatsApp Number (GET KEY):</label>
+                        <input type="text" id="redeploy-wa-input" placeholder="e.g. 923233829598" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
+                    </div>
                 </div>
             </div>
 
@@ -406,6 +460,10 @@
             renderHistory();
             setupDragAndDrop();
         };
+
+        function scrollToDeploySection() {
+            document.getElementById('deploy-section').scrollIntoView({ behavior: 'smooth' });
+        }
 
         async function pasteFromClipboardModal() {
             try {
@@ -601,6 +659,7 @@
             document.getElementById('redeploy-site-title').innerText = siteName;
             document.getElementById('redeploy-subdomain-display').innerText = siteName + '.hassan-host-top.vercel.app';
             document.getElementById('redeploy-pass-input').value = currentEditingPassword || '';
+            document.getElementById('redeploy-wa-input').value = currentEditingWhatsapp || '';
             
             document.getElementById('redeploy-overlay-page').classList.remove('hidden');
             
@@ -622,9 +681,10 @@
             }
 
             const updatedPass = document.getElementById('redeploy-pass-input').value.trim();
-            if (updatedPass) {
-                currentEditingPassword = updatedPass;
-            }
+            const updatedWa = document.getElementById('redeploy-wa-input').value.trim();
+
+            currentEditingPassword = updatedPass || null;
+            if (updatedWa) currentEditingWhatsapp = updatedWa;
 
             closeRedeployOverlay();
 
@@ -674,7 +734,7 @@
             progressOverlay.classList.remove('hidden');
 
             let seconds = 0;
-            const totalDuration = 20;
+            const totalDuration = 30; // UPDATED TO 30 SECONDS
 
             const steps = [
                 "Extracting project bundle & verifying files...",
@@ -776,6 +836,7 @@
             clearFiles();
         }
 
+        // STYLISH & PROFESSIONAL PASSWORD ACCESS DIALOG DIALOG WITH OPPOSITE DONE & GET KEY BUTTONS
         function renderHostedWebsite(siteName) {
             const rawData = localStorage.getItem('hh_site_' + siteName);
             
@@ -793,25 +854,48 @@
             const project = JSON.parse(rawData);
 
             if (project.password) {
-                const userEnteredPass = prompt("This site is Password Protected. Enter Access Key:");
-                if (userEnteredPass !== project.password) {
-                    const waNum = project.whatsapp || '923233829598';
-                    const waUrl = `https://wa.me/${waNum}?text=Hello,%20I%20need%20the%20access%20key%20for%20site:%20${siteName}`;
-                    
-                    document.body.innerHTML = `
-                        <div style="background:#0f172a; color:#fff; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif; text-align:center; padding:20px;">
-                            <div style="font-size:48px; margin-bottom:15px;">🔒</div>
-                            <h1 style="font-size:24px; font-weight:bold; margin-bottom:10px;">Access Denied (Incorrect Key)</h1>
-                            <p style="color:#94a3b8; font-size:14px; max-width:400px; margin-bottom:20px;">You entered an incorrect password for <b>${siteName}</b>. Request the access key from the site owner below.</p>
-                            <a href="${waUrl}" target="_blank" style="background:#25D366; color:#fff; padding:12px 24px; text-decoration:none; border-radius:10px; font-weight:bold; font-size:14px; display:inline-flex; align-items:center; gap:8px;">
-                                <i class="fa-brands fa-whatsapp"></i> GET KEY FROM DEVELOPER
-                            </a>
+                const waNum = project.whatsapp || '923233829598';
+                const waUrl = `https://wa.me/${waNum}?text=Hello,%20I%20need%20the%20access%20key%20for%20site:%20${siteName}`;
+
+                document.body.innerHTML = `
+                    <div style="background:#090d16; color:#fff; height:100vh; display:flex; align-items:center; justify-content:center; font-family:sans-serif; padding:20px;">
+                        <div style="background:#1e293b; border:1px solid #334155; border-radius:20px; max-width:420px; width:100%; padding:30px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); text-align:center;">
+                            <div style="width:60px; height:60px; background:rgba(245,158,11,0.15); color:#f59e0b; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 15px auto;">🔒</div>
+                            <h2 style="font-size:20px; font-weight:bold; margin-bottom:6px;">Protected Website</h2>
+                            <p style="color:#94a3b8; font-size:12px; margin-bottom:20px;">Enter the access key/password to view <b>${siteName}</b></p>
+                            
+                            <input type="password" id="site-key-input" placeholder="Enter Access Key..." style="width:100%; background:#0f172a; border:1px solid #475569; color:#fff; padding:12px; border-radius:12px; font-size:14px; outline:none; margin-bottom:20px; box-sizing:border-box;">
+                            
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                                <a href="${waUrl}" target="_blank" style="background:#25D366; color:#fff; padding:12px 18px; text-decoration:none; border-radius:12px; font-weight:bold; font-size:12px; display:inline-flex; align-items:center; gap:6px;">
+                                    <i class="fa-brands fa-whatsapp"></i> GET KEY
+                                </a>
+                                <button onclick="verifySiteAccessKey('${siteName}')" style="background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:12px; font-weight:bold; font-size:12px; cursor:pointer;">
+                                    DONE
+                                </button>
+                            </div>
                         </div>
-                    `;
-                    return;
-                }
+                    </div>
+                `;
+                return;
             }
 
+            launchSiteIframe(project);
+        }
+
+        function verifySiteAccessKey(siteName) {
+            const inputKey = document.getElementById('site-key-input').value;
+            const rawData = localStorage.getItem('hh_site_' + siteName);
+            const project = JSON.parse(rawData);
+
+            if (inputKey === project.password) {
+                launchSiteIframe(project);
+            } else {
+                alert('Incorrect Access Key! Please try again or request key via WhatsApp.');
+            }
+        }
+
+        function launchSiteIframe(project) {
             let indexFile = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
 
             if (!indexFile) {
@@ -825,6 +909,18 @@
             document.body.innerHTML = `
                 <iframe src="${blobUrl}" style="position:fixed; top:0; left:0; width:100%; height:100%; border:none; margin:0; padding:0; z-index:999999; background:#ffffff;"></iframe>
             `;
+        }
+
+        function sendReportEmail(event) {
+            event.preventDefault();
+            const name = document.getElementById('report-name').value;
+            const email = document.getElementById('report-email').value;
+            const msg = document.getElementById('report-message').value;
+
+            const mailtoUrl = `mailto:ansarbubble@gmail.com?subject=HassanHost%20Report%20from%20${encodeURIComponent(name)}&body=Name:%20${encodeURIComponent(name)}%0D%0AEmail:%20${encodeURIComponent(email)}%0D%0A%0D%0AMessage:%0D%0A${encodeURIComponent(msg)}`;
+            
+            window.location.href = mailtoUrl;
+            alert('Opening email client to send report to ansarbubble@gmail.com!');
         }
 
         function renderHistory() {
