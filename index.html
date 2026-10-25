@@ -54,6 +54,9 @@
             font-family: monospace;
             padding: 8px;
         }
+        #redeploy-editor-textarea + .CodeMirror {
+            height: 400px !important;
+        }
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -132,10 +135,10 @@
                 <div class="flex rounded-xl shadow-sm border border-slate-700 bg-slate-950 focus-within:border-blue-500 overflow-hidden transition mb-2">
                     <input type="text" id="site-name-input" placeholder="host-by-me" oninput="updateRealtimeUrlPreview(this.value)" class="w-full bg-transparent px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-sm font-mono">
                 </div>
-                <!-- REALTIME URL PREVIEW DISPLAY -->
+                <!-- REALTIME URL PREVIEW DISPLAY (FIXED CLEAN ROUTE FORMAT TO PREVENT VERCEL 403 ERROR) -->
                 <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2 flex items-center justify-between text-xs font-mono">
                     <span class="text-slate-400">Live URL Preview:</span>
-                    <span id="realtime-url-display" class="text-blue-400 font-bold truncate">https://hassan-host-top.vercel.app/view.php?site=host-by-me</span>
+                    <span id="realtime-url-display" class="text-blue-400 font-bold truncate">https://hassan-host-top.vercel.app/?site=host-by-me</span>
                 </div>
             </div>
 
@@ -302,7 +305,13 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">HTML / CSS / JS Code</label>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-xs font-medium text-slate-300">HTML / CSS / JS Code</label>
+                        <div class="space-x-2">
+                            <button onclick="codeMirrorEditor.setValue('')" class="text-[11px] text-rose-400 hover:underline"><i class="fa-solid fa-trash mr-1"></i>Clear All</button>
+                            <button onclick="pasteFromClipboardModal()" class="text-[11px] text-blue-400 hover:underline"><i class="fa-solid fa-paste mr-1"></i>Paste Code</button>
+                        </div>
+                    </div>
                     <textarea id="modal-code"></textarea>
                 </div>
 
@@ -327,18 +336,27 @@
         </div>
 
         <div class="flex-1 p-6 max-w-5xl mx-auto w-full flex flex-col space-y-4 overflow-y-auto">
-            <div class="bg-slate-900 p-4 border border-slate-800 rounded-2xl flex items-center justify-between">
+            <div class="bg-slate-900 p-4 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                     <label class="block text-xs text-slate-400">Target Subdomain:</label>
                     <div id="redeploy-subdomain-display" class="font-mono text-sm text-emerald-400 font-bold"></div>
                 </div>
-                <button onclick="startRedeployFromOverlay()" class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold text-xs rounded-xl hover:opacity-90 transition shadow-lg shadow-amber-500/20">
-                    <i class="fa-solid fa-bolt mr-1"></i> Re-deploy Project
-                </button>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <input type="password" id="redeploy-pass-input" placeholder="Update Password (Optional)" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    <button onclick="startRedeployFromOverlay()" class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold text-xs rounded-xl hover:opacity-90 transition shadow-lg shadow-amber-500/25 whitespace-nowrap">
+                        <i class="fa-solid fa-bolt mr-1"></i> Re-deploy Project
+                    </button>
+                </div>
             </div>
 
             <div class="bg-slate-900 p-4 border border-slate-800 rounded-2xl flex-1 flex flex-col">
-                <label class="block text-xs text-slate-300 mb-2 font-semibold">Project Code / Files Content Editor:</label>
+                <div class="flex items-center justify-between mb-2">
+                    <label class="text-xs text-slate-300 font-semibold">Project Code Editor:</label>
+                    <div class="space-x-3">
+                        <button onclick="redeployCodeMirror.setValue('')" class="text-xs text-rose-400 hover:underline"><i class="fa-solid fa-trash mr-1"></i>Clear All Code</button>
+                        <button onclick="pasteFromClipboardRedeploy()" class="text-xs text-blue-400 hover:underline"><i class="fa-solid fa-paste mr-1"></i>Paste Copied Code</button>
+                    </div>
+                </div>
                 <div class="flex-1 border border-slate-700 rounded-xl overflow-hidden">
                     <textarea id="redeploy-editor-textarea"></textarea>
                 </div>
@@ -360,9 +378,10 @@
         let codeMirrorEditor = null;
         let redeployCodeMirror = null;
         let currentOverlaySiteName = '';
+        let currentEditingPassword = null;
+        let currentEditingWhatsapp = '923233829598';
 
         window.onload = function() {
-            // Initialize CodeMirror Live Code Editor
             codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById('modal-code'), {
                 mode: 'htmlmixed',
                 theme: 'dracula',
@@ -388,6 +407,26 @@
             setupDragAndDrop();
         };
 
+        async function pasteFromClipboardModal() {
+            try {
+                const text = await navigator.clipboard.readText();
+                codeMirrorEditor.setValue(text);
+                alert('Code pasted successfully!');
+            } catch (err) {
+                alert('Failed to paste from clipboard. Please use Ctrl+V inside editor.');
+            }
+        }
+
+        async function pasteFromClipboardRedeploy() {
+            try {
+                const text = await navigator.clipboard.readText();
+                redeployCodeMirror.setValue(text);
+                alert('Code pasted successfully!');
+            } catch (err) {
+                alert('Failed to paste from clipboard. Please use Ctrl+V inside editor.');
+            }
+        }
+
         function togglePasswordFields(enabled) {
             const box = document.getElementById('password-options-box');
             if (enabled) box.classList.remove('hidden');
@@ -400,9 +439,9 @@
             const basePath = window.location.pathname.replace('index.html', '');
             
             if (cleanVal.length > 0) {
-                display.innerText = `${window.location.origin}${basePath}view.php?site=${cleanVal}`;
+                display.innerText = `${window.location.origin}${basePath}?site=${cleanVal}`;
             } else {
-                display.innerText = `${window.location.origin}${basePath}view.php?site=host-by-me`;
+                display.innerText = `${window.location.origin}${basePath}?site=host-by-me`;
             }
         }
 
@@ -527,7 +566,6 @@
             codeMirrorEditor.setValue('');
         }
 
-        // LIVE PREVIEW MODAL
         function openLivePreviewModal() {
             if (currentProjectFiles.length === 0) {
                 alert('Please add or upload code/files first to preview!');
@@ -549,18 +587,20 @@
             document.getElementById('live-preview-iframe').src = 'about:blank';
         }
 
-        // FULLSCREEN OVERLAY PENCIL EDIT PAGE
         function openRedeployOverlay(siteName) {
             const rawData = localStorage.getItem('hh_site_' + siteName);
             if (!rawData) return;
 
             const project = JSON.parse(rawData);
             currentOverlaySiteName = siteName;
+            currentEditingPassword = project.password || null;
+            currentEditingWhatsapp = project.whatsapp || '923233829598';
             
             let mainIndex = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
 
             document.getElementById('redeploy-site-title').innerText = siteName;
             document.getElementById('redeploy-subdomain-display').innerText = siteName + '.hassan-host-top.vercel.app';
+            document.getElementById('redeploy-pass-input').value = currentEditingPassword || '';
             
             document.getElementById('redeploy-overlay-page').classList.remove('hidden');
             
@@ -581,9 +621,13 @@
                 return;
             }
 
+            const updatedPass = document.getElementById('redeploy-pass-input').value.trim();
+            if (updatedPass) {
+                currentEditingPassword = updatedPass;
+            }
+
             closeRedeployOverlay();
 
-            // Set project files and triggers deployment
             currentProjectFiles = [{
                 name: 'index.html',
                 type: 'text/html',
@@ -662,9 +706,14 @@
         }
 
         function saveProjectLocally(siteName, files) {
-            const passCheck = document.getElementById('enable-pass-check').checked;
-            const password = passCheck ? document.getElementById('site-password-input').value : null;
-            const whatsapp = passCheck ? document.getElementById('site-whatsapp-input').value : '923233829598';
+            let password = currentEditingPassword;
+            let whatsapp = currentEditingWhatsapp;
+
+            if (!isRedeployMode) {
+                const passCheck = document.getElementById('enable-pass-check').checked;
+                password = passCheck ? document.getElementById('site-password-input').value : null;
+                whatsapp = passCheck ? document.getElementById('site-whatsapp-input').value : '923233829598';
+            }
 
             const projectData = {
                 siteName: siteName,
@@ -691,7 +740,7 @@
             const resultHeading = document.getElementById('result-heading');
 
             const basePath = window.location.pathname.replace('index.html', '');
-            const liveUrl = `${window.location.origin}${basePath}view.php?site=${siteName}`;
+            const liveUrl = `${window.location.origin}${basePath}?site=${siteName}`;
             
             resultUrlInput.value = liveUrl;
             viewBtn.href = liveUrl;
@@ -715,6 +764,7 @@
 
         function resetDeployForm() {
             isRedeployMode = false;
+            currentEditingPassword = null;
             document.getElementById('engine-title-text').innerText = "Deploy New Project";
             document.getElementById('deploy-btn-text').innerText = "Deploy & Live Host Website";
             
@@ -742,7 +792,6 @@
 
             const project = JSON.parse(rawData);
 
-            // CHECK PASSWORD PROTECTION
             if (project.password) {
                 const userEnteredPass = prompt("This site is Password Protected. Enter Access Key:");
                 if (userEnteredPass !== project.password) {
@@ -798,7 +847,7 @@
             const basePath = window.location.pathname.replace('index.html', '');
 
             history.forEach(item => {
-                const liveUrl = `${window.location.origin}${basePath}view.php?site=${item.siteName}`;
+                const liveUrl = `${window.location.origin}${basePath}?site=${item.siteName}`;
                 const row = document.createElement('div');
                 row.className = 'py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs';
                 row.innerHTML = `
