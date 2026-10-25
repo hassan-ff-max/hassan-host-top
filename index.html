@@ -8,6 +8,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CodeMirror Editor Resources -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
     <!-- JSZip Library for Zipped/Multiple Files Handling -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
@@ -38,6 +46,13 @@
         .drag-active {
             border-color: #3b82f6 !important;
             background-color: rgba(59, 130, 246, 0.1) !important;
+        }
+        .CodeMirror {
+            height: 320px;
+            border-radius: 0.75rem;
+            font-size: 13px;
+            font-family: monospace;
+            padding: 8px;
         }
         /* Custom scrollbar */
         ::-webkit-scrollbar {
@@ -155,11 +170,39 @@
                 </div>
             </div>
 
-            <!-- STEP 3: DEPLOY BUTTON -->
-            <button id="deploy-btn" onclick="startDeployment()" class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2 text-base">
-                <i class="fa-solid fa-bolt"></i>
-                <span id="deploy-btn-text">Deploy & Live Host Website</span>
-            </button>
+            <!-- STEP 3: PASSWORD PROTECTION & WHATSAPP KEY OPTION -->
+            <div class="mb-6 bg-slate-950/60 p-4 border border-slate-800 rounded-xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lock text-amber-400"></i> Enable Password Protection (Optional):
+                    </label>
+                    <input type="checkbox" id="enable-pass-check" onchange="togglePasswordFields(this.checked)" class="w-4 h-4 accent-blue-600 rounded cursor-pointer">
+                </div>
+
+                <div id="password-options-box" class="hidden space-y-3 pt-2 border-t border-slate-800">
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Set Site Access Password / Key:</label>
+                        <input type="password" id="site-password-input" placeholder="Enter password for visitors" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Developer WhatsApp Number (For "GET KEY" Button):</label>
+                        <input type="text" id="site-whatsapp-input" value="923233829598" placeholder="e.g. 923233829598" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
+                        <p class="text-[10px] text-slate-500 mt-1">Visitors without password can click "GET KEY" to request key via WhatsApp.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTION BUTTONS: DEPLOY & LIVE PREVIEW -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <button onclick="openLivePreviewModal()" class="sm:col-span-1 py-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl transition flex items-center justify-center space-x-2 text-sm border border-slate-700">
+                    <i class="fa-solid fa-eye text-blue-400"></i>
+                    <span>Live Preview</span>
+                </button>
+                <button id="deploy-btn" onclick="startDeployment()" class="sm:col-span-3 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2 text-base">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span id="deploy-btn-text">Deploy & Live Host Website</span>
+                </button>
+            </div>
 
             <!-- 20-SECOND LIVE DEPLOYMENT PROGRESS OVERLAY -->
             <div id="deployment-progress" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-6 text-center">
@@ -222,12 +265,30 @@
 
     </main>
 
-    <!-- CREATE NEW FILE MODAL (SINGLE FILE EDITOR) -->
+    <!-- LIVE PREVIEW MODAL -->
+    <div id="live-preview-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex flex-col p-4 sm:p-8">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl flex-1 flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                    <span class="text-xs font-mono text-slate-400 ml-2">Live Testing Preview Sandbox</span>
+                </div>
+                <button onclick="closeLivePreviewModal()" class="text-slate-400 hover:text-white transition px-2">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <iframe id="live-preview-iframe" class="w-full flex-1 bg-white border-none"></iframe>
+        </div>
+    </div>
+
+    <!-- CREATE NEW FILE MODAL (SINGLE FILE EDITOR WITH CODEMIRROR) -->
     <div id="single-file-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-code text-blue-400"></i> Create / Edit Single File Code
+                    <i class="fa-solid fa-code text-blue-400"></i> Real-time Live Code Editor
                 </h3>
                 <button onclick="toggleSingleFileModal(false)" class="text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -242,12 +303,44 @@
 
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">HTML / CSS / JS Code</label>
-                    <textarea id="modal-code" rows="10" placeholder="<!DOCTYPE html>&#10;<html>&#10;<head><title>My Site</title></head>&#10;<body>&#10;  <h1>Hello World!</h1>&#10;</body>&#10;</html>" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-blue-500"></textarea>
+                    <textarea id="modal-code"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-2 pt-2">
                     <button onclick="toggleSingleFileModal(false)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl">Cancel</button>
-                    <button onclick="saveModalSingleFile()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl">Add To Project</button>
+                    <button onclick="saveModalSingleFile()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl">Save & Add File</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULLSCREEN PENCIL EDIT & RE-DEPLOY OVERLAY PAGE -->
+    <div id="redeploy-overlay-page" class="fixed inset-0 bg-slate-950 z-50 hidden flex flex-col">
+        <div class="h-16 border-b border-slate-800 bg-slate-900 px-6 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-pencil text-amber-400"></i>
+                <h3 class="font-bold text-white text-sm">Editing Project: <span id="redeploy-site-title" class="text-blue-400 font-mono"></span></h3>
+            </div>
+            <button onclick="closeRedeployOverlay()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg transition">
+                <i class="fa-solid fa-xmark mr-1"></i> Close Editor
+            </button>
+        </div>
+
+        <div class="flex-1 p-6 max-w-5xl mx-auto w-full flex flex-col space-y-4 overflow-y-auto">
+            <div class="bg-slate-900 p-4 border border-slate-800 rounded-2xl flex items-center justify-between">
+                <div>
+                    <label class="block text-xs text-slate-400">Target Subdomain:</label>
+                    <div id="redeploy-subdomain-display" class="font-mono text-sm text-emerald-400 font-bold"></div>
+                </div>
+                <button onclick="startRedeployFromOverlay()" class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold text-xs rounded-xl hover:opacity-90 transition shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-bolt mr-1"></i> Re-deploy Project
+                </button>
+            </div>
+
+            <div class="bg-slate-900 p-4 border border-slate-800 rounded-2xl flex-1 flex flex-col">
+                <label class="block text-xs text-slate-300 mb-2 font-semibold">Project Code / Files Content Editor:</label>
+                <div class="flex-1 border border-slate-700 rounded-xl overflow-hidden">
+                    <textarea id="redeploy-editor-textarea"></textarea>
                 </div>
             </div>
         </div>
@@ -264,12 +357,28 @@
     <script>
         let currentProjectFiles = [];
         let isRedeployMode = false;
+        let codeMirrorEditor = null;
+        let redeployCodeMirror = null;
+        let currentOverlaySiteName = '';
 
         window.onload = function() {
+            // Initialize CodeMirror Live Code Editor
+            codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById('modal-code'), {
+                mode: 'htmlmixed',
+                theme: 'dracula',
+                lineNumbers: true,
+                autoCloseTags: true
+            });
+
+            redeployCodeMirror = CodeMirror.fromTextArea(document.getElementById('redeploy-editor-textarea'), {
+                mode: 'htmlmixed',
+                theme: 'dracula',
+                lineNumbers: true
+            });
+
             const urlParams = new URLSearchParams(window.location.search);
             const siteQuery = urlParams.get('site');
 
-            // Support both view.php?site=name and ?site=name
             if (siteQuery) {
                 renderHostedWebsite(siteQuery);
                 return;
@@ -279,7 +388,12 @@
             setupDragAndDrop();
         };
 
-        // REALTIME URL PREVIEW UPDATER USING VIEW.PHP ROUTE FORMAT
+        function togglePasswordFields(enabled) {
+            const box = document.getElementById('password-options-box');
+            if (enabled) box.classList.remove('hidden');
+            else box.classList.add('hidden');
+        }
+
         function updateRealtimeUrlPreview(val) {
             const cleanVal = val.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
             const display = document.getElementById('realtime-url-display');
@@ -380,13 +494,17 @@
 
         function toggleSingleFileModal(show) {
             const modal = document.getElementById('single-file-modal');
-            if (show) modal.classList.remove('hidden');
-            else modal.classList.add('hidden');
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => codeMirrorEditor.refresh(), 100);
+            } else {
+                modal.classList.add('hidden');
+            }
         }
 
         function saveModalSingleFile() {
             const fileName = document.getElementById('modal-filename').value.trim() || 'index.html';
-            const code = document.getElementById('modal-code').value;
+            const code = codeMirrorEditor.getValue();
 
             if (!code) {
                 alert('Please enter some code!');
@@ -406,31 +524,75 @@
 
             updateFileListUI();
             toggleSingleFileModal(false);
-            document.getElementById('modal-code').value = '';
+            codeMirrorEditor.setValue('');
         }
 
-        // EDIT PROJECT FROM HISTORY (PENCIL ICON)
-        function editProject(siteName) {
+        // LIVE PREVIEW MODAL
+        function openLivePreviewModal() {
+            if (currentProjectFiles.length === 0) {
+                alert('Please add or upload code/files first to preview!');
+                return;
+            }
+
+            let indexFile = currentProjectFiles.find(f => f.name.toLowerCase() === 'index.html') || currentProjectFiles[0];
+            const blob = new Blob([indexFile.content], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+
+            const iframe = document.getElementById('live-preview-iframe');
+            iframe.src = blobUrl;
+
+            document.getElementById('live-preview-modal').classList.remove('hidden');
+        }
+
+        function closeLivePreviewModal() {
+            document.getElementById('live-preview-modal').classList.add('hidden');
+            document.getElementById('live-preview-iframe').src = 'about:blank';
+        }
+
+        // FULLSCREEN OVERLAY PENCIL EDIT PAGE
+        function openRedeployOverlay(siteName) {
             const rawData = localStorage.getItem('hh_site_' + siteName);
             if (!rawData) return;
 
             const project = JSON.parse(rawData);
-            currentProjectFiles = project.files;
+            currentOverlaySiteName = siteName;
             
-            const siteInput = document.getElementById('site-name-input');
-            siteInput.value = siteName;
-            siteInput.disabled = true; // Lock subdomain during editing
+            let mainIndex = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
 
-            updateRealtimeUrlPreview(siteName);
-            updateFileListUI();
+            document.getElementById('redeploy-site-title').innerText = siteName;
+            document.getElementById('redeploy-subdomain-display').innerText = siteName + '.hassan-host-top.vercel.app';
+            
+            document.getElementById('redeploy-overlay-page').classList.remove('hidden');
+            
+            setTimeout(() => {
+                redeployCodeMirror.setValue(mainIndex ? mainIndex.content : '');
+                redeployCodeMirror.refresh();
+            }, 100);
+        }
 
-            // Set UI to Redeploy Mode
+        function closeRedeployOverlay() {
+            document.getElementById('redeploy-overlay-page').classList.add('hidden');
+        }
+
+        function startRedeployFromOverlay() {
+            const newCode = redeployCodeMirror.getValue();
+            if (!newCode) {
+                alert('Code cannot be empty!');
+                return;
+            }
+
+            closeRedeployOverlay();
+
+            // Set project files and triggers deployment
+            currentProjectFiles = [{
+                name: 'index.html',
+                type: 'text/html',
+                content: newCode
+            }];
+
+            document.getElementById('site-name-input').value = currentOverlaySiteName;
             isRedeployMode = true;
-            document.getElementById('engine-title-text').innerText = "Re-deploy Project (" + siteName + ")";
-            document.getElementById('deploy-btn-text').innerText = "Re-deploy & Update Website";
-
-            // Scroll smoothly to section
-            document.getElementById('deploy-section').scrollIntoView({ behavior: 'smooth' });
+            startDeployment();
         }
 
         function startDeployment() {
@@ -500,10 +662,16 @@
         }
 
         function saveProjectLocally(siteName, files) {
+            const passCheck = document.getElementById('enable-pass-check').checked;
+            const password = passCheck ? document.getElementById('site-password-input').value : null;
+            const whatsapp = passCheck ? document.getElementById('site-whatsapp-input').value : '923233829598';
+
             const projectData = {
                 siteName: siteName,
                 timestamp: new Date().toLocaleString(),
-                files: files
+                files: files,
+                password: password,
+                whatsapp: whatsapp
             };
 
             localStorage.setItem('hh_site_' + siteName, JSON.stringify(projectData));
@@ -552,7 +720,6 @@
             
             const siteInput = document.getElementById('site-name-input');
             siteInput.value = '';
-            siteInput.disabled = false;
 
             document.getElementById('deploy-result').classList.add('hidden');
             updateRealtimeUrlPreview('');
@@ -574,6 +741,28 @@
             }
 
             const project = JSON.parse(rawData);
+
+            // CHECK PASSWORD PROTECTION
+            if (project.password) {
+                const userEnteredPass = prompt("This site is Password Protected. Enter Access Key:");
+                if (userEnteredPass !== project.password) {
+                    const waNum = project.whatsapp || '923233829598';
+                    const waUrl = `https://wa.me/${waNum}?text=Hello,%20I%20need%20the%20access%20key%20for%20site:%20${siteName}`;
+                    
+                    document.body.innerHTML = `
+                        <div style="background:#0f172a; color:#fff; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif; text-align:center; padding:20px;">
+                            <div style="font-size:48px; margin-bottom:15px;">🔒</div>
+                            <h1 style="font-size:24px; font-weight:bold; margin-bottom:10px;">Access Denied (Incorrect Key)</h1>
+                            <p style="color:#94a3b8; font-size:14px; max-width:400px; margin-bottom:20px;">You entered an incorrect password for <b>${siteName}</b>. Request the access key from the site owner below.</p>
+                            <a href="${waUrl}" target="_blank" style="background:#25D366; color:#fff; padding:12px 24px; text-decoration:none; border-radius:10px; font-weight:bold; font-size:14px; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="fa-brands fa-whatsapp"></i> GET KEY FROM DEVELOPER
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+
             let indexFile = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
 
             if (!indexFile) {
@@ -626,7 +815,7 @@
                         <a href="${liveUrl}" target="_blank" class="px-3 py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 rounded-lg transition font-medium">
                             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>View
                         </a>
-                        <button onclick="editProject('${item.siteName}')" title="Edit Code & Re-deploy" class="px-3 py-1.5 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 rounded-lg transition">
+                        <button onclick="openRedeployOverlay('${item.siteName}')" title="Edit Code & Re-deploy" class="px-3 py-1.5 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 rounded-lg transition">
                             <i class="fa-solid fa-pencil"></i>
                         </button>
                         <button onclick="copyLink('${liveUrl}')" class="px-3 py-1.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg transition">
