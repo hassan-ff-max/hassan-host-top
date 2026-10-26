@@ -20,28 +20,133 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script>
-        // FAST INTERCEPT: Check for ?site= query immediately before DOM renders to prevent flashing hosting UI
-        (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const siteQuery = urlParams.get('site');
-            if (siteQuery) {
-                document.documentElement.innerHTML = `
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>Loading Hosted Project...</title>
-                        <style>
-                            body { background: #0f172a; color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; margin: 0; }
-                            .spinner { width: 40px; height: 40px; border: 4px solid #334155; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
-                            @keyframes spin { to { transform: rotate(360deg); } }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="spinner"></div>
-                        <p style="font-size: 14px; color: #94a3b8; font-family: monospace;">Loading ${siteQuery}...</p>
-                    </body>
+        // FIREBASE INITIALIZATION & IMMEDIATE URL INTERCEPT TO PREVENT FLASHING
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-MyEeRIlykX1p9Zwy8Q15MCQIfk7hOkM",
+            authDomain: "hassanhost.firebaseapp.com.firebaseapp.com",
+            databaseURL: "https://hassanhost-default-rtdb.firebaseio.com",
+            projectId: "hassanhost",
+            storageBucket: "hassanhost.firebasestorage.app.appspot.com",
+            messagingSenderId: "1098600170460",
+            appId: "1:1098600170460:web:e642da459dbcd0eea30519"
+        };
+
+        let firebaseApp = null;
+        let firebaseDB = null;
+        
+        try {
+            firebaseApp = firebase.initializeApp(firebaseConfig);
+            firebaseDB = firebase.database();
+        } catch (e) {
+            console.log("Firebase init error:", e);
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const siteQuery = urlParams.get('site');
+
+        if (siteQuery) {
+            document.documentElement.innerHTML = `
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Loading ${siteQuery}...</title>
+                    <style>
+                        body { background: #0f172a; color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; margin: 0; }
+                        .spinner { width: 45px; height: 45px; border: 4px solid #334155; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
+                        @keyframes spin { to { transform: rotate(360deg); } }
+                    </style>
+                </head>
+                <body>
+                    <div class="spinner"></div>
+                    <p style="font-size: 14px; color: #94a3b8; font-family: monospace;">Fetching project "${siteQuery}" from cloud...</p>
+                </body>
+            `;
+
+            // Fetch from Firebase directly
+            window.addEventListener('DOMContentLoaded', () => {
+                if (firebaseDB) {
+                    firebaseDB.ref('hosted_projects/' + siteQuery).once('value').then((snapshot) => {
+                        const project = snapshot.val();
+                        if (!project) {
+                            // Fallback to local storage if not found in cloud
+                            const localData = localStorage.getItem('hh_site_' + siteQuery);
+                            if (localData) {
+                                renderHostedWebsiteData(JSON.parse(localData));
+                            } else {
+                                showNotFoundError(siteQuery);
+                            }
+                        } else {
+                            renderHostedWebsiteData(project);
+                        }
+                    }).catch(() => {
+                        showNotFoundError(siteQuery);
+                    });
+                } else {
+                    showNotFoundError(siteQuery);
+                }
+            });
+        }
+
+        function showNotFoundError(siteName) {
+            document.body.innerHTML = `
+                <div style="background:#0f172a; color:#fff; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif; text-align:center; padding:20px;">
+                    <h1 style="font-size:28px; font-weight:bold; margin-bottom:10px;">404 - Site Not Found</h1>
+                    <p style="color:#94a3b8; font-size:14px; max-width:400px; margin-bottom:20px;">The site "${siteName}" does not exist or may have been deleted.</p>
+                    <a href="${window.location.pathname}" style="background:#2563eb; color:#fff; padding:10px 20px; border-radius:10px; text-decoration:none; font-weight:bold; font-size:13px;">← Go Back to HassanHost</a>
+                </div>
+            `;
+        }
+
+        function renderHostedWebsiteData(project) {
+            if (project.password) {
+                const waNum = project.whatsapp || '923233829598';
+                const waUrl = `https://wa.me/${waNum}?text=Hello,%20I%20need%20the%20access%20key%20for%20site:%20${project.siteName}`;
+
+                document.body.innerHTML = `
+                    <div style="background:#090d16; color:#fff; height:100vh; display:flex; align-items:center; justify-content:center; font-family:sans-serif; padding:20px;">
+                        <div style="background:#1e293b; border:1px solid #334155; border-radius:20px; max-width:420px; width:100%; padding:30px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); text-align:center;">
+                            <div style="width:60px; height:60px; background:rgba(245,158,11,0.15); color:#f59e0b; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 15px auto;">🔒</div>
+                            <h2 style="font-size:20px; font-weight:bold; margin-bottom:6px;">Protected Website</h2>
+                            <p style="color:#94a3b8; font-size:12px; margin-bottom:20px;">Enter the access key/password to view <b>${project.siteName}</b></p>
+                            
+                            <input type="password" id="site-key-input" placeholder="Enter Access Key..." style="width:100%; background:#0f172a; border:1px solid #475569; color:#fff; padding:12px; border-radius:12px; font-size:14px; outline:none; margin-bottom:20px; box-sizing:border-box;">
+                            
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                                <a href="${waUrl}" target="_blank" style="background:#25D366; color:#fff; padding:12px 18px; text-decoration:none; border-radius:12px; font-weight:bold; font-size:12px; display:inline-flex; align-items:center; gap:6px;">
+                                    <i class="fa-brands fa-whatsapp"></i> GET KEY
+                                </a>
+                                <button onclick='verifyKeyDirect("${project.siteName}", ${JSON.stringify(project.password)})' style="background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:12px; font-weight:bold; font-size:12px; cursor:pointer;">
+                                    DONE
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 `;
+                return;
             }
-        })();
+
+            launchSiteIframeDirect(project);
+        }
+
+        function verifyKeyDirect(siteName, realPassword) {
+            const inputKey = document.getElementById('site-key-input').value;
+            if (inputKey === realPassword) {
+                firebaseDB.ref('hosted_projects/' + siteName).once('value').then((snapshot) => {
+                    launchSiteIframeDirect(snapshot.val());
+                });
+            } else {
+                alert('Incorrect Access Key!');
+            }
+        }
+
+        function launchSiteIframeDirect(project) {
+            let indexFile = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
+            const blob = new Blob([indexFile.content], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+
+            document.body.innerHTML = `
+                <iframe src="${blobUrl}" style="position:fixed; top:0; left:0; width:100%; height:100%; border:none; margin:0; padding:0; z-index:999999; background:#ffffff;"></iframe>
+            `;
+        }
 
         tailwind.config = {
             darkMode: 'class',
@@ -457,34 +562,8 @@
         </div>
     </footer>
 
-    <!-- CLIENT-SIDE ENGINE & FIREBASE GLOBAL SYNC JAVASCRIPT -->
+    <!-- MAIN APP JAVASCRIPT -->
     <script>
-        // ----------------------------------------------------
-        // 🔑 FIREBASE CONFIGURATION (ENTER YOUR FIREBASE DETAILS BELOW)
-        // ----------------------------------------------------
-        const firebaseConfig = {
-            apiKey: "AIzaSyC-MyEeRIlykX1p9Zwy8Q15MCQIfk7hOkM",
-            authDomain: "hassanhost.firebaseapp.com.firebaseapp.com",
-            databaseURL: "https://hassanhost-default-rtdb.firebaseio.com",
-            projectId: "hassanhost",
-            storageBucket: "hassanhost.firebasestorage.app.appspot.com",
-            messagingSenderId: "1098600170460",
-            appId: "1:1098600170460:web:e642da459dbcd0eea30519"
-        };
-
-        // Initialize Firebase
-        let firebaseApp = null;
-        let firebaseDB = null;
-        
-        try {
-            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-                firebaseApp = firebase.initializeApp(firebaseConfig);
-                firebaseDB = firebase.database();
-            }
-        } catch (e) {
-            console.log("Firebase initialized in fallback mode until keys are entered.");
-        }
-
         let currentProjectFiles = [];
         let isRedeployMode = false;
         let codeMirrorEditor = null;
@@ -494,13 +573,8 @@
         let currentEditingWhatsapp = '923233829598';
 
         window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const siteQuery = urlParams.get('site');
-
-            if (siteQuery) {
-                renderHostedWebsite(siteQuery);
-                return;
-            }
+            // If siteQuery exists, the top self-executing script handles it.
+            if (urlParams.get('site')) return;
 
             codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById('modal-code'), {
                 mode: 'htmlmixed',
@@ -530,7 +604,7 @@
                 codeMirrorEditor.setValue(text);
                 alert('Code pasted successfully!');
             } catch (err) {
-                alert('Failed to paste from clipboard. Please use Ctrl+V inside editor.');
+                alert('Failed to paste from clipboard.');
             }
         }
 
@@ -540,7 +614,7 @@
                 redeployCodeMirror.setValue(text);
                 alert('Code pasted successfully!');
             } catch (err) {
-                alert('Failed to paste from clipboard. Please use Ctrl+V inside editor.');
+                alert('Failed to paste from clipboard.');
             }
         }
 
@@ -564,28 +638,17 @@
 
         function setupDragAndDrop() {
             const dropZone = document.getElementById('drop-zone');
-
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, preventDefaults, false);
+                dropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
             });
-
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-active'), false);
             });
-
             ['dragleave', 'drop'].forEach(eventName => {
                 dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-active'), false);
             });
-
             dropZone.addEventListener('drop', (e) => {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                handleFiles(files);
+                handleFiles(e.dataTransfer.files);
             }, false);
         }
 
@@ -604,7 +667,6 @@
                     });
                     updateFileListUI();
                 };
-                
                 if (file.name.match(/\.(html|htm|css|js|json|txt|md|svg)$/i)) {
                     reader.readAsText(file);
                 } else {
@@ -705,27 +767,36 @@
         }
 
         function openRedeployOverlay(siteName) {
-            const rawData = localStorage.getItem('hh_site_' + siteName);
-            if (!rawData) return;
+            if (!firebaseDB) {
+                alert('Firebase not connected.');
+                return;
+            }
 
-            const project = JSON.parse(rawData);
-            currentOverlaySiteName = siteName;
-            currentEditingPassword = project.password || null;
-            currentEditingWhatsapp = project.whatsapp || '923233829598';
-            
-            let mainIndex = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
+            firebaseDB.ref('hosted_projects/' + siteName).once('value').then((snapshot) => {
+                const project = snapshot.val();
+                if (!project) {
+                    alert('Project not found in cloud database!');
+                    return;
+                }
 
-            document.getElementById('redeploy-site-title').innerText = siteName;
-            document.getElementById('redeploy-subdomain-display').innerText = siteName + '.hassan-host-top.vercel.app';
-            document.getElementById('redeploy-pass-input').value = currentEditingPassword || '';
-            document.getElementById('redeploy-wa-input').value = currentEditingWhatsapp || '';
-            
-            document.getElementById('redeploy-overlay-page').classList.remove('hidden');
-            
-            setTimeout(() => {
-                redeployCodeMirror.setValue(mainIndex ? mainIndex.content : '');
-                redeployCodeMirror.refresh();
-            }, 100);
+                currentOverlaySiteName = siteName;
+                currentEditingPassword = project.password || null;
+                currentEditingWhatsapp = project.whatsapp || '923233829598';
+                
+                let mainIndex = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
+
+                document.getElementById('redeploy-site-title').innerText = siteName;
+                document.getElementById('redeploy-subdomain-display').innerText = siteName + '.hassan-host-top.vercel.app';
+                document.getElementById('redeploy-pass-input').value = currentEditingPassword || '';
+                document.getElementById('redeploy-wa-input').value = currentEditingWhatsapp || '';
+                
+                document.getElementById('redeploy-overlay-page').classList.remove('hidden');
+                
+                setTimeout(() => {
+                    redeployCodeMirror.setValue(mainIndex ? mainIndex.content : '');
+                    redeployCodeMirror.refresh();
+                }, 100);
+            });
         }
 
         function closeRedeployOverlay() {
@@ -769,7 +840,7 @@
             }
 
             if (currentProjectFiles.length === 0) {
-                alert('Please upload files or create a file using "Create New File"!');
+                alert('Please upload files or create a file first!');
                 return;
             }
 
@@ -784,16 +855,11 @@
             const statusDetail = document.getElementById('deploy-status-detail');
             const statusTitle = document.getElementById('deploy-status-title');
 
-            if (isRedeployMode) {
-                statusTitle.innerText = "Re-deploying Your Website...";
-            } else {
-                statusTitle.innerText = "Deploying Your Website...";
-            }
-
+            statusTitle.innerText = isRedeployMode ? "Re-deploying Your Website..." : "Deploying Your Website...";
             progressOverlay.classList.remove('hidden');
 
             let seconds = 0;
-            const totalDuration = 30; // 30 SECONDS TIMER
+            const totalDuration = 30;
 
             const steps = [
                 "Extracting project bundle & verifying files...",
@@ -819,12 +885,12 @@
                 if (seconds >= totalDuration) {
                     clearInterval(timer);
                     progressOverlay.classList.add('hidden');
-                    saveProjectLocally(siteName, currentProjectFiles);
+                    saveProjectToCloud(siteName, currentProjectFiles);
                 }
             }, 500);
         }
 
-        function saveProjectLocally(siteName, files) {
+        function saveProjectToCloud(siteName, files) {
             let password = currentEditingPassword;
             let whatsapp = currentEditingWhatsapp;
 
@@ -842,6 +908,7 @@
                 whatsapp: whatsapp
             };
 
+            // 1. Save locally for history
             localStorage.setItem('hh_site_' + siteName, JSON.stringify(projectData));
 
             let history = JSON.parse(localStorage.getItem('hh_history') || '[]');
@@ -856,8 +923,9 @@
             const basePath = window.location.pathname.replace('index.html', '');
             const liveUrl = `${window.location.origin}${basePath}?site=${siteName}`;
 
-            // PUSH TO FIREBASE GLOBAL REALTIME DATABASE
+            // 2. SAVE FULL PROJECT TO FIREBASE (CLOUD HOSTING) SO ANYONE CAN ACCESS IT!
             if (firebaseDB) {
+                firebaseDB.ref('hosted_projects/' + siteName).set(projectData);
                 firebaseDB.ref('global_projects/' + siteName).set({
                     siteName: siteName,
                     liveUrl: liveUrl,
@@ -874,12 +942,7 @@
             resultUrlInput.value = liveUrl;
             viewBtn.href = liveUrl;
 
-            if (isRedeployMode) {
-                resultHeading.innerText = "Website Re-deployed Successfully!";
-            } else {
-                resultHeading.innerText = "Website Hosted Successfully!";
-            }
-
+            resultHeading.innerText = isRedeployMode ? "Website Re-deployed Successfully!" : "Website Hosted Successfully!";
             resultBox.classList.remove('hidden');
             renderHistory();
         }
@@ -896,87 +959,10 @@
             currentEditingPassword = null;
             document.getElementById('engine-title-text').innerText = "Deploy New Project";
             document.getElementById('deploy-btn-text').innerText = "Deploy & Live Host Website";
-            
-            const siteInput = document.getElementById('site-name-input');
-            siteInput.value = '';
-
+            document.getElementById('site-name-input').value = '';
             document.getElementById('deploy-result').classList.add('hidden');
             updateRealtimeUrlPreview('');
             clearFiles();
-        }
-
-        function renderHostedWebsite(siteName) {
-            const rawData = localStorage.getItem('hh_site_' + siteName);
-            
-            if (!rawData) {
-                document.body.innerHTML = `
-                    <div style="background:#0f172a; color:#fff; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif;">
-                        <h1 style="font-size:32px; font-weight:bold; margin-bottom:10px;">404 - Site Not Found</h1>
-                        <p style="color:#94a3b8; font-size:14px;">The site "${siteName}" does not exist on this browser session.</p>
-                        <a href="${window.location.pathname}" style="margin-top:20px; color:#3b82f6; text-decoration:none; font-weight:bold;">← Go Back to HassanHost</a>
-                    </div>
-                `;
-                return;
-            }
-
-            const project = JSON.parse(rawData);
-
-            if (project.password) {
-                const waNum = project.whatsapp || '923233829598';
-                const waUrl = `https://wa.me/${waNum}?text=Hello,%20I%20need%20the%20access%20key%20for%20site:%20${siteName}`;
-
-                document.body.innerHTML = `
-                    <div style="background:#090d16; color:#fff; height:100vh; display:flex; align-items:center; justify-content:center; font-family:sans-serif; padding:20px;">
-                        <div style="background:#1e293b; border:1px solid #334155; border-radius:20px; max-width:420px; width:100%; padding:30px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); text-align:center;">
-                            <div style="width:60px; height:60px; background:rgba(245,158,11,0.15); color:#f59e0b; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 15px auto;">🔒</div>
-                            <h2 style="font-size:20px; font-weight:bold; margin-bottom:6px;">Protected Website</h2>
-                            <p style="color:#94a3b8; font-size:12px; margin-bottom:20px;">Enter the access key/password to view <b>${siteName}</b></p>
-                            
-                            <input type="password" id="site-key-input" placeholder="Enter Access Key..." style="width:100%; background:#0f172a; border:1px solid #475569; color:#fff; padding:12px; border-radius:12px; font-size:14px; outline:none; margin-bottom:20px; box-sizing:border-box;">
-                            
-                            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-                                <a href="${waUrl}" target="_blank" style="background:#25D366; color:#fff; padding:12px 18px; text-decoration:none; border-radius:12px; font-weight:bold; font-size:12px; display:inline-flex; align-items:center; gap:6px;">
-                                    <i class="fa-brands fa-whatsapp"></i> GET KEY
-                                </a>
-                                <button onclick="verifySiteAccessKey('${siteName}')" style="background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:12px; font-weight:bold; font-size:12px; cursor:pointer;">
-                                    DONE
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            launchSiteIframe(project);
-        }
-
-        function verifySiteAccessKey(siteName) {
-            const inputKey = document.getElementById('site-key-input').value;
-            const rawData = localStorage.getItem('hh_site_' + siteName);
-            const project = JSON.parse(rawData);
-
-            if (inputKey === project.password) {
-                launchSiteIframe(project);
-            } else {
-                alert('Incorrect Access Key! Please try again or request key via WhatsApp.');
-            }
-        }
-
-        function launchSiteIframe(project) {
-            let indexFile = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
-
-            if (!indexFile) {
-                document.body.innerHTML = `<h1>Error: No displayable HTML file found.</h1>`;
-                return;
-            }
-
-            const blob = new Blob([indexFile.content], { type: 'text/html' });
-            const blobUrl = URL.createObjectURL(blob);
-
-            document.body.innerHTML = `
-                <iframe src="${blobUrl}" style="position:fixed; top:0; left:0; width:100%; height:100%; border:none; margin:0; padding:0; z-index:999999; background:#ffffff;"></iframe>
-            `;
         }
 
         function sendReportEmail(event) {
@@ -984,11 +970,9 @@
             const name = document.getElementById('report-name').value;
             const email = document.getElementById('report-email').value;
             const msg = document.getElementById('report-message').value;
-
             const mailtoUrl = `mailto:ansarbubble@gmail.com?subject=HassanHost%20Report%20from%20${encodeURIComponent(name)}&body=Name:%20${encodeURIComponent(name)}%0D%0AEmail:%20${encodeURIComponent(email)}%0D%0A%0D%0AMessage:%0D%0A${encodeURIComponent(msg)}`;
-            
             window.location.href = mailtoUrl;
-            alert('Opening email client to send report to ansarbubble@gmail.com!');
+            alert('Opening email client to send report!');
         }
 
         function renderHistory() {
@@ -1043,16 +1027,11 @@
             });
         }
 
-        // LISTEN TO FIREBASE REALTIME GLOBAL PROJECTS
         function listenGlobalProjects() {
             const container = document.getElementById('global-container');
 
             if (!firebaseDB) {
-                container.innerHTML = `
-                    <div class="text-center py-6 text-slate-500 text-xs">
-                        Configure Firebase credentials above to see live global projects from all users.
-                    </div>
-                `;
+                container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">Firebase not connected.</div>`;
                 return;
             }
 
@@ -1096,10 +1075,6 @@
             alert('Project URL copied!');
         }
 
-        (function() {
-            // Keep helper to prevent any unassigned call
-        })();
-
         function deleteHistoryItem(siteName) {
             if (!confirm(`Are you sure you want to delete ${siteName}?`)) return;
 
@@ -1107,6 +1082,11 @@
             let history = JSON.parse(localStorage.getItem('hh_history') || '[]');
             history = history.filter(h => h.siteName !== siteName);
             localStorage.setItem('hh_history', JSON.stringify(history));
+
+            if (firebaseDB) {
+                firebaseDB.ref('hosted_projects/' + siteName).remove();
+                firebaseDB.ref('global_projects/' + siteName).remove();
+            }
 
             renderHistory();
         }
