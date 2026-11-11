@@ -809,12 +809,16 @@
 
         async function pasteFromClipboardModal() {
             try {
-                const text = await navigator.clipboard.readText();
-                if (codeMirrorEditor) {
-                    codeMirrorEditor.setValue(text);
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (codeMirrorEditor) {
+                        codeMirrorEditor.setValue(text);
+                    }
+                } else {
+                    alert('Clipboard paste requires browser permission or HTTPS context. You can paste directly using standard Ctrl+V / Long-press paste inside the editor.');
                 }
             } catch (err) {
-                alert('Failed to paste code from clipboard.');
+                alert('Failed to paste code from clipboard. Please use manual paste inside the editor.');
             }
         }
 
@@ -921,8 +925,10 @@
             if (show) {
                 modal.classList.remove('hidden');
                 setTimeout(() => {
-                    if (codeMirrorEditor) codeMirrorEditor.refresh();
-                }, 100);
+                    if (codeMirrorEditor) {
+                        codeMirrorEditor.refresh();
+                    }
+                }, 150);
             } else {
                 modal.classList.add('hidden');
             }
