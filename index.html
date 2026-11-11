@@ -6,6 +6,22 @@
     <title>HassanHost - Enterprise Mobile Web Hosting Console</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CodeMirror Editor Resources -->
@@ -52,15 +68,15 @@
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Loading ${siteQuery} | HassanHost Global Edge Network</title>
                     <style>
-                        body { background: #ffffff; color: #0f172a; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; box-sizing: border-box; }
-                        .spinner { width: 44px; height: 44px; border: 3px solid rgba(6, 182, 212, 0.15); border-top-color: #06b6d4; border-radius: 50%; animation: spin 0.65s linear infinite; margin-bottom: 16px; }
+                        body { background: #030712; color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; box-sizing: border-box; }
+                        .spinner { width: 44px; height: 44px; border: 3px solid rgba(59, 130, 246, 0.15); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.65s linear infinite; margin-bottom: 16px; }
                         @keyframes spin { to { transform: rotate(360deg); } }
                     </style>
                 </head>
                 <body>
                     <div class="spinner"></div>
-                    <p style="font-size: 14px; color: #64748b; font-family: monospace; letter-spacing: 0.3px;">Connecting to Edge Node...</p>
-                    <p style="font-size: 12px; color: #06b6d4; font-family: monospace; margin-top: 4px;">Resolving project "${siteQuery}"</p>
+                    <p style="font-size: 14px; color: #94a3b8; font-family: monospace; letter-spacing: 0.3px;">Connecting to Edge Node...</p>
+                    <p style="font-size: 12px; color: #3b82f6; font-family: monospace; margin-top: 4px;">Resolving project "${siteQuery}"</p>
                 </body>
             `;
 
@@ -89,11 +105,11 @@
 
         function showNotFoundError(siteName) {
             document.body.innerHTML = `
-                <div style="background:#ffffff; color:#0f172a; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:-apple-system, sans-serif; text-align:center; padding:24px;">
+                <div style="background:#030712; color:#fff; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:-apple-system, sans-serif; text-align:center; padding:24px;">
                     <div style="width:60px; height:60px; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:26px; color:#ef4444; margin-bottom:16px;">⚠️</div>
                     <h1 style="font-size:24px; font-weight:800; margin-bottom:8px; letter-spacing:-0.5px;">Site Not Found</h1>
-                    <p style="color:#64748b; font-size:13px; max-width:340px; margin-bottom:20px; line-height:1.5;">Subdomain <b>"${siteName}"</b> could not be located on the HassanHost CDN engine.</p>
-                    <a href="${window.location.pathname}" style="background:#06b6d4; color:#fff; padding:12px 22px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">← Return to Console</a>
+                    <p style="color:#94a3b8; font-size:13px; max-width:340px; margin-bottom:20px; line-height:1.5;">Subdomain <b>"${siteName}"</b> could not be located on the HassanHost CDN engine.</p>
+                    <a href="${window.location.pathname}" style="background:#2563eb; color:#fff; padding:12px 22px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">← Return to Console</a>
                 </div>
             `;
         }
@@ -101,54 +117,31 @@
         function renderHostedWebsiteData(project) {
             if (project.password) {
                 const waNum = project.whatsapp || '923294675242';
-                // Clean whatsapp input if user added full URL or just number
-                const cleanWa = waNum.replace(/[^0-9]/g, '');
-                const waUrl = `https://wa.me/${cleanWa}?text=Hello,%20I%20need%20the%20access%20key%20for%20site:%20${project.siteName}`;
+                const waUrl = `https://wa.me/${waNum}?text=Hello,%20I%20need%20the%20access%20key%20for%20site:%20${project.siteName}`;
+                const projectNameDisplay = project.siteName ? project.siteName.toUpperCase() : 'HASSAN X AFZAAL TOOLS';
 
                 document.body.innerHTML = `
-                    <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@400;500;600;700&display=swap');
-                        .custom-title-font { font-family: 'Pacifico', cursive; letter-spacing: 0.5px; }
-                        .custom-btn-font { font-family: 'Pacifico', cursive; letter-spacing: 1px; }
-                    </style>
-                    <div style="background:#ffffff; color:#0f172a; min-height:100vh; display:flex; align-items:center; justify-content:center; font-family:'Inter', sans-serif; padding:16px;">
-                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:24px; max-width:380px; width:100%; padding:28px 24px; box-shadow:0 15px 35px rgba(0,0,0,0.08); text-align:center; position:relative;">
+                    <div style="background: linear-gradient(180deg, #f0fdfa 0%, #e0f2fe 100%); color:#0f172a; min-height:100vh; display:flex; align-items:center; justify-content:center; font-family:'Inter', sans-serif; padding:16px;">
+                        <div style="background:#ffffff; border:1px solid rgba(6, 182, 212, 0.2); border-radius:24px; max-width:380px; width:100%; padding:28px; box-shadow:0 20px 40px rgba(6, 182, 212, 0.15); text-align:center; position:relative;">
+                            <div style="width:56px; height:56px; background:rgba(6, 182, 212, 0.1); border:1px solid rgba(6, 182, 212, 0.3); color:#06b6d4; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto 16px auto;">🔒</div>
+                            <div style="font-size:11px; font-weight:700; color:#06b6d4; letter-spacing:1px; margin-bottom:6px;">PROTECTED AREA</div>
                             
-                            <div style="width:50px; height:50px; background:rgba(6, 182, 212, 0.1); border:1px solid rgba(6, 182, 212, 0.2); color:#06b6d4; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; margin:0 auto 12px auto;">
-                                <i class="fa-solid fa-lock"></i>
-                            </div>
-                            
-                            <div style="font-size:11px; font-weight:700; color:#06b6d4; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px;">Protected Area</div>
-                            
-                            <h2 class="custom-title-font" style="font-size:26px; color:#1e293b; margin-bottom:8px; line-height:1.3;">${project.siteName.toUpperCase()}</h2>
+                            <h2 style="font-size:24px; font-weight:900; color:#0f172a; margin-bottom:8px; font-family: 'Brush Script MT', cursive, sans-serif; line-height:1.2;">${projectNameDisplay}</h2>
                             <p style="color:#64748b; font-size:12px; margin-bottom:20px;">Enter your access key to continue</p>
                             
-                            <div style="text-align:left; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px;">Access Key</div>
+                            <div style="text-align:left; font-size:11px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">ACCESS KEY</div>
+                            <div style="position:relative; margin-bottom:4px;">
+                                <input type="password" id="site-key-input" placeholder="Enter your password..." style="width:100%; background:#f8fafc; border:1px solid #cbd5e1; color:#0f172a; padding:12px 40px 12px 14px; border-radius:14px; font-size:13px; outline:none; box-sizing:border-box;">
+                                <i class="fa-regular fa-eye" id="toggle-password-icon" onclick="togglePasswordVisibility()" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#94a3b8; cursor:pointer; font-size:14px;"></i>
+                            </div>
+                            <div id="error-msg-container" style="text-align:left; font-size:11px; color:#ef4444; margin-bottom:16px; min-height:16px; display:flex; align-items:center; gap:4px;"></div>
                             
-                            <div style="position:relative; margin-bottom:6px;">
-                                <input type="password" id="site-key-input" placeholder="Enter your password" style="width:100%; background:#f8fafc; border:1px solid #cbd5e1; color:#0f172a; padding:12px 40px 12px 14px; border-radius:14px; font-size:13px; outline:none; box-sizing:border-box;" onkeypress="if(event.key === 'KeyE' || event.keyCode === 13) verifyKeyDirect('${project.siteName}', ${JSON.stringify(project.password)})">
-                                <i class="fa-regular fa-eye-slash" id="toggle-pass-icon" onclick="togglePasswordVisibility()" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#94a3b8; cursor:pointer; font-size:15px;"></i>
-                            </div>
-
-                            <div id="error-msg-box" style="display:none; align-items:center; gap:6px; color:#ef4444; font-size:11px; margin-bottom:14px; text-align:left; padding-left:4px;">
-                                <i class="fa-regular fa-circle-xmark"></i> <span>Wrong password.</span>
-                            </div>
-
-                            <div style="display:flex; justify-content:center; gap:6px; margin-bottom:20px;">
-                                <span style="width:6px; height:6px; background:#cbd5e1; border-radius:50%;"></span>
-                                <span style="width:6px; height:6px; background:#cbd5e1; border-radius:50%;"></span>
-                                <span style="width:6px; height:6px; background:#cbd5e1; border-radius:50%;"></span>
-                                <span style="width:6px; height:6px; background:#cbd5e1; border-radius:50%;"></span>
-                                <span style="width:6px; height:6px; background:#cbd5e1; border-radius:50%;"></span>
-                                <span style="width:6px; height:6px; background:#cbd5e1; border-radius:50%;"></span>
-                            </div>
-                            
-                            <button onclick='verifyKeyDirect("${project.siteName}", ${JSON.stringify(project.password)})' class="custom-btn-font" style="width:100%; background:#06b6d4; color:#fff; border:none; padding:13px; border-radius:14px; font-size:15px; cursor:pointer; box-shadow:0 4px 12px rgba(6,182,212,0.3); margin-bottom:12px; transition:opacity 0.2s;">
-                                Unlock Access
+                            <button onclick='verifyKeyDirect(${JSON.stringify(project)})' style="width:100%; background:#06b6d4; color:#fff; border:none; padding:14px; border-radius:14px; font-weight:800; font-size:13px; cursor:pointer; box-shadow:0 8px 20px rgba(6, 182, 212, 0.3); margin-bottom:12px; text-transform:lowercase;">
+                                unlock access
                             </button>
 
-                            <a href="${waUrl}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#ffffff; border:1px solid #cbd5e1; color:#334155; padding:12px; border-radius:14px; text-decoration:none; font-weight:600; font-size:12px; box-sizing:border-box;">
-                                <i class="fa-regular fa-comment-dots" style="color:#06b6d4; font-size:14px;"></i> Contact to Purchase Key
+                            <a href="${waUrl}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#ffffff; border:1px solid #cbd5e1; color:#334155; padding:12px; text-decoration:none; border-radius:14px; font-weight:600; font-size:12px; box-sizing:border-box;">
+                                <i class="fa-regular fa-comment-dots" style="color:#06b6d4;"></i> Contact to Purchase Key
                             </a>
                         </div>
                     </div>
@@ -156,64 +149,97 @@
                 return;
             }
 
-            launchSiteIframeDirect(project);
+            launchSiteWithPopups(project);
         }
 
         function togglePasswordVisibility() {
             const input = document.getElementById('site-key-input');
-            const icon = document.getElementById('toggle-pass-icon');
+            const icon = document.getElementById('toggle-password-icon');
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.className = 'fa-regular fa-eye';
+                icon.className = 'fa-regular fa-eye-slash';
             } else {
                 input.type = 'password';
-                icon.className = 'fa-regular fa-eye-slash';
+                icon.className = 'fa-regular fa-eye';
             }
         }
 
-        function verifyKeyDirect(siteName, realPassword) {
+        function verifyKeyDirect(project) {
             const inputKey = document.getElementById('site-key-input').value;
-            const errorBox = document.getElementById('error-msg-box');
-            const inputField = document.getElementById('site-key-input');
+            const errorContainer = document.getElementById('error-msg-container');
 
-            if (inputKey === realPassword) {
-                firebaseDB.ref('hosted_projects/' + siteName).once('value').then((snapshot) => {
-                    launchSiteIframeDirect(snapshot.val());
+            if (inputKey === project.password) {
+                firebaseDB.ref('hosted_projects/' + project.siteName).once('value').then((snapshot) => {
+                    launchSiteWithPopups(snapshot.val());
                 });
             } else {
-                errorBox.style.display = 'flex';
-                inputField.style.borderColor = '#ef4444';
+                errorContainer.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Wrong password.`;
             }
         }
 
-        function launchSiteIframeDirect(project) {
+        function launchSiteWithPopups(project) {
             let indexFile = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
             const blob = new Blob([indexFile.content], { type: 'text/html' });
             const blobUrl = URL.createObjectURL(blob);
 
-            document.body.innerHTML = `
-                <iframe src="${blobUrl}" style="position:fixed; top:0; left:0; width:100%; height:100%; border:none; margin:0; padding:0; z-index:999999; background:#ffffff;"></iframe>
-            `;
-        }
+            let popupsHtml = '';
 
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                        }
-                    }
-                }
+            if (project.enableIntro && project.introMessage) {
+                popupsHtml += `
+                    <div id="intro-popup-overlay" style="position:fixed; inset:0; background:rgba(3,7,18,0.85); backdrop-filter:blur(8px); z-index:9999999; display:flex; align-items:center; justify-content:center; padding:16px;">
+                        <div style="background:#ffffff; color:#0f172a; width:100%; max-width:360px; border-radius:24px; padding:28px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+                            <div style="font-size:36px; margin-bottom:12px;">👋</div>
+                            <h3 style="font-family:'Brush Script MT', cursive, sans-serif; font-size:28px; color:#06b6d4; margin-bottom:16px;">welcome</h3>
+                            <div style="font-size:12px; color:#334155; line-height:1.6; white-space:pre-wrap; margin-bottom:24px; font-family:monospace; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid #e2e8f0;">${project.introMessage}</div>
+                            <button onclick="closeIntroPopup()" style="width:100%; background:#06b6d4; color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; font-size:12px; cursor:pointer; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">GOT IT ✓</button>
+                            <button onclick="closeIntroPopup()" style="width:100%; background:transparent; color:#64748b; border:1px solid #cbd5e1; padding:10px; border-radius:12px; font-weight:700; font-size:12px; cursor:pointer; text-transform:uppercase;">CLOSE</button>
+                        </div>
+                    </div>
+                `;
             }
+
+            if (project.enableChannel && project.channelLink) {
+                const headline = project.channelHeadline || 'FOLLOW MY WHATSAPP SOURCE CODES CHANNEL';
+                const desc = project.channelDesc || 'Join our channel to get daily updates and source codes.';
+                const btn1Text = project.btn1Text || 'Follow Now';
+                const btn2Text = project.btn2Text || 'Not Interested';
+
+                popupsHtml += `
+                    <div id="channel-popup-overlay" style="position:fixed; inset:0; background:rgba(3,7,18,0.85); backdrop-filter:blur(8px); z-index:9999998; display:${project.enableIntro ? 'none' : 'flex'}; align-items:center; justify-content:center; padding:16px;">
+                        <div style="background:#ffffff; color:#0f172a; width:100%; max-width:360px; border-radius:24px; padding:28px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+                            <div style="width:48px; height:48px; background:rgba(6,182,212,0.1); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto; color:#06b6d4; font-size:20px;"><i class="fa-solid fa-bullhorn"></i></div>
+                            <h3 style="font-family:'Brush Script MT', cursive, sans-serif; font-size:22px; color:#0f172a; margin-bottom:12px; line-height:1.3; font-weight:900;">${headline}</h3>
+                            <div style="font-size:11px; color:#64748b; line-height:1.5; margin-bottom:20px; font-family:monospace;">${desc}</div>
+                            <a href="${project.channelLink}" target="_blank" onclick="closeChannelPopup()" style="display:block; width:100%; background:#06b6d4; color:#fff; text-decoration:none; padding:12px; border-radius:12px; font-weight:800; font-size:12px; box-sizing:border-box; margin-bottom:8px; box-shadow:0 8px 20px rgba(6,182,212,0.3);">
+                                <i class="fa-brands fa-whatsapp" style="margin-right:6px;"></i> ${btn1Text}
+                            </a>
+                            <button onclick="closeChannelPopup()" style="width:100%; background:transparent; color:#64748b; border:1px solid #cbd5e1; padding:10px; border-radius:12px; font-weight:700; font-size:12px; cursor:pointer;">${btn2Text}</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.body.innerHTML = `
+                <iframe src="${blobUrl}" style="position:fixed; top:0; left:0; width:100%; height:100%; border:none; margin:0; padding:0; z-index:999; background:#ffffff;"></iframe>
+                ${popupsHtml}
+                <script>
+                    function closeIntroPopup() {
+                        const intro = document.getElementById('intro-popup-overlay');
+                        if(intro) intro.style.display = 'none';
+                        const channel = document.getElementById('channel-popup-overlay');
+                        if(channel) channel.style.display = 'flex';
+                    }
+                    function closeChannelPopup() {
+                        const channel = document.getElementById('channel-popup-overlay');
+                        if(channel) channel.style.display = 'none';
+                    }
+                </script>
+            `;
         }
     </script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Pacifico&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -222,15 +248,10 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .custom-script-font {
-            font-family: 'Pacifico', cursive;
-        }
-
         .font-mono {
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Glassmorphism Styles */
         .glass-panel {
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(16px);
@@ -283,18 +304,25 @@
 </head>
 <body class="bg-gray-950 text-slate-100 antialiased min-h-screen flex flex-col justify-between relative" id="app-body">
 
-    <!-- TOP NAVIGATION BAR -->
+    <!-- TOP NAVIGATION BAR (MOBILE OPTIMIZED) -->
     <header class="border-b border-slate-800/80 glass-panel sticky top-0 z-40 shadow-lg">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+            
             <div class="flex items-center space-x-2.5">
                 <button onclick="toggleSidebarMenu(true)" aria-label="Open Navigation Menu" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-200 active:scale-95 flex items-center justify-center font-bold transition">
                     <i class="fa-solid fa-bars text-base"></i>
                 </button>
+                
                 <div class="flex items-center space-x-2">
                     <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center font-black text-lg text-white shadow-md shadow-blue-600/30">
                         H
                     </div>
                     <span class="text-base sm:text-lg font-black tracking-tight">Hassan<span class="text-blue-500">Host</span></span>
+                </div>
+
+                <div class="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full font-semibold text-[11px]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>100% Free Live</span>
                 </div>
             </div>
             
@@ -312,7 +340,7 @@
         </div>
     </header>
 
-    <!-- NAVIGATION DRAWER -->
+    <!-- NAVIGATION DRAWER (MOBILE-FIRST) -->
     <div id="sidebar-menu-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex justify-start">
         <div class="bg-slate-900 border-r border-slate-800 w-full max-w-xs sm:max-w-sm h-full overflow-y-auto p-5 flex flex-col justify-between shadow-2xl relative">
             <div>
@@ -356,12 +384,52 @@
                             </a>
                         </div>
                     </div>
+
+                    <div>
+                        <div class="text-slate-400 font-bold mb-2 uppercase tracking-wider text-[10px]">Other Ecosystem Projects</div>
+                        <div class="space-y-1.5">
+                            <a href="https://afzaal-free-host.vercel.app" target="_blank" class="block p-2 bg-slate-950/70 rounded-xl border border-slate-800 hover:border-blue-500/50 transition">
+                                <div class="font-bold text-white text-[11px]">FRIEND HOSTING</div>
+                                <div class="text-[9px] text-slate-400 font-mono truncate">afzaal-free-host.vercel.app</div>
+                            </a>
+                            <a href="https://hassan-host-free.vercel.app" target="_blank" class="block p-2 bg-slate-950/70 rounded-xl border border-slate-800 hover:border-blue-500/50 transition">
+                                <div class="font-bold text-white text-[11px]">MY 2ND HOSTING</div>
+                                <div class="text-[9px] text-slate-400 font-mono truncate">hassan-host-free.vercel.app</div>
+                            </a>
+                            <a href="https://hassan-toolkit-pro.vercel.app" target="_blank" class="block p-2 bg-slate-950/70 rounded-xl border border-slate-800 hover:border-blue-500/50 transition">
+                                <div class="font-bold text-white text-[11px]">TOOLKIT</div>
+                                <div class="text-[9px] text-slate-400 font-mono truncate">hassan-toolkit-pro.vercel.app</div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800">
+                        <div class="text-slate-400 font-bold mb-2 uppercase tracking-wider text-[10px]">Change Theme Color</div>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="setThemeColor('gradient-bw')" class="p-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg font-semibold text-left text-[10px] text-slate-200 flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full bg-gradient-to-r from-slate-200 to-slate-800 border border-slate-600"></span> Black+White
+                            </button>
+                            <button onclick="setThemeColor('gradient-pg')" class="p-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg font-semibold text-left text-[10px] text-slate-200 flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full bg-gradient-to-r from-pink-500 to-emerald-500"></span> Pink+Green
+                            </button>
+                            <button onclick="setThemeColor('gradient-gy')" class="p-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg font-semibold text-left text-[10px] text-slate-200 flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full bg-gradient-to-r from-emerald-500 to-yellow-400"></span> Green+Yellow
+                            </button>
+                            <button onclick="setThemeColor('gradient-bp')" class="p-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg font-semibold text-left text-[10px] text-slate-200 flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full bg-gradient-to-r from-slate-900 to-purple-600 border border-purple-500"></span> Black+Purple
+                            </button>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <div class="pt-3 mt-4 border-t border-slate-800 text-center text-[9px] text-slate-500 font-mono">
+                HassanHost Mobile Console v4.0
             </div>
         </div>
     </div>
 
-    <!-- MAIN CONSOLE DASHBOARD -->
+    <!-- MAIN CONSOLE DASHBOARD (MOBILE-FIRST) -->
     <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 flex-grow w-full">
         
         <div class="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
@@ -370,10 +438,11 @@
                 <span class="gradient-text">Fast, Secure & Free Forever</span>
             </h1>
             <p class="text-slate-400 text-xs sm:text-base max-w-xl mx-auto">
-                Upload static multi-file projects or write code online with secure access key protection.
+                Upload static multi-file projects (HTML, CSS, JS, Images) or write code online. Deploys instantly to our global CDN edge node.
             </p>
         </div>
 
+        <!-- HOSTING DEPLOYMENT CONSOLE -->
         <div id="deploy-section" class="max-w-3xl mx-auto glass-panel border border-slate-800 rounded-2xl p-4 sm:p-7 shadow-2xl relative overflow-hidden">
             
             <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-800">
@@ -383,9 +452,14 @@
                     </div>
                     <div>
                         <h2 id="engine-title-text" class="text-base sm:text-lg font-extrabold text-white">Deploy Project</h2>
-                        <p class="text-[11px] text-slate-400">Multi-file upload with custom passcode & WhatsApp key link</p>
+                        <p class="text-[11px] text-slate-400">Multi-file upload or online code editor</p>
                     </div>
                 </div>
+                
+                <button onclick="toggleSingleFileModal(true)" class="px-2.5 py-1.5 text-xs font-semibold bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-600/30 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-code"></i>
+                    <span>Create File</span>
+                </button>
             </div>
 
             <!-- STEP 1: WEBSITE SUBDOMAIN NAME -->
@@ -393,102 +467,288 @@
                 <label for="site-name-input" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
                     <i class="fa-solid fa-globe text-blue-400 mr-1"></i> 1. Enter Website Subdomain:
                 </label>
-                <input type="text" id="site-name-input" placeholder="my-custom-subdomain" oninput="updateRealtimeUrlPreview(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-white placeholder-slate-600 focus:outline-none text-xs sm:text-sm font-mono mb-2">
+                <div class="flex rounded-xl border border-slate-700/80 bg-slate-950/80 focus-within:border-blue-500 overflow-hidden transition mb-2">
+                    <input type="text" id="site-name-input" placeholder="my-custom-subdomain" oninput="updateRealtimeUrlPreview(this.value)" class="w-full bg-transparent px-3.5 py-3 text-white placeholder-slate-600 focus:outline-none text-xs sm:text-sm font-mono">
+                </div>
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg px-3 py-2 flex items-center justify-between text-[11px] font-mono">
+                    <span class="text-slate-400 text-[10px]">Preview:</span>
+                    <span id="realtime-url-display" class="text-blue-400 font-bold truncate">https://hassan-host-top.vercel.app/?site=my-custom-subdomain</span>
+                </div>
             </div>
 
-            <!-- STEP 2: DRAG & DROP -->
+            <!-- STEP 2: DRAG & DROP / FILE SELECTION -->
             <div class="mb-5">
                 <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-                    <i class="fa-solid fa-folder-open text-blue-400 mr-1"></i> 2. Project Files:
+                    <i class="fa-solid fa-folder-open text-blue-400 mr-1"></i> 2. Drag & Drop Project Files:
                 </label>
-                <div id="drop-zone" onclick="document.getElementById('file-input').click()" class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl p-5 text-center bg-slate-950/40 cursor-pointer transition flex flex-col items-center justify-center min-h-[140px]">
+                
+                <div id="drop-zone" onclick="document.getElementById('file-input').click()" class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl p-5 text-center bg-slate-950/40 hover:bg-slate-900/60 cursor-pointer transition flex flex-col items-center justify-center min-h-[160px]">
                     <input type="file" id="file-input" multiple class="hidden" onchange="handleFileSelect(event)">
                     <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-2xl mb-2">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
                     </div>
-                    <p class="text-xs sm:text-sm font-bold text-slate-200">Tap to select or Drop files here</p>
+                    <p class="text-xs sm:text-sm font-bold text-slate-200">
+                        Tap to select or Drop files here
+                    </p>
+                    <p class="text-[10px] text-slate-400 mt-1 font-mono">
+                        Supports .html, .css, .js, .json, .txt, .png, .jpg, .svg
+                    </p>
                 </div>
+
                 <div id="file-list-container" class="mt-3 hidden">
-                    <div id="file-list" class="max-h-36 overflow-y-auto space-y-1.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-xs font-mono text-slate-300"></div>
-                </div>
-            </div>
-
-            <!-- STEP 3: ACCESS PROTECTION -->
-            <div class="mb-5 bg-slate-950/70 p-3.5 border border-slate-800 rounded-xl space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <span class="text-xs font-bold text-slate-200 block">Password Access Protection</span>
-                        <span class="text-[10px] text-slate-400 block">Require password key to view site</span>
+                    <div class="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+                        <span>Project Files (<span id="file-count" class="font-bold text-white">0</span>):</span>
+                        <button onclick="clearFiles()" class="text-rose-400 hover:underline text-[10px]">Clear all</button>
                     </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="enable-pass-check" onchange="togglePasswordFields(this.checked)" class="sr-only peer">
-                        <div class="w-9 h-5 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                    </label>
-                </div>
-
-                <div id="password-options-box" class="hidden space-y-2 pt-2 border-t border-slate-800">
-                    <div>
-                        <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Set Visitor Password Key:</label>
-                        <input type="password" id="site-password-input" placeholder="Enter password key" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Developer WhatsApp Number (e.g. 923294675242):</label>
-                        <input type="text" id="site-whatsapp-input" value="923294675242" placeholder="923294675242" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-emerald-400 font-mono focus:outline-none">
+                    <div id="file-list" class="max-h-36 overflow-y-auto space-y-1.5 bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-xs font-mono text-slate-300">
                     </div>
                 </div>
             </div>
 
-            <button id="deploy-btn" onclick="startDeployment()" class="w-full py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-extrabold rounded-xl shadow-lg transition text-sm">
-                <i class="fa-solid fa-bolt mr-1"></i> Deploy & Host Website
-            </button>
+            <!-- STEP 3: ACCESS PROTECTION & POPUPS CONFIGURATION -->
+            <div class="space-y-3 mb-5">
+                <!-- PASSWORD PROTECTION TOGGLE -->
+                <div class="bg-slate-950/70 p-3.5 border border-slate-800 rounded-xl space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                                <i class="fa-solid fa-shield-halved text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-slate-200 block">Password Access Protection</span>
+                                <span class="text-[10px] text-slate-400 block">Require password key to view site</span>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="enable-pass-check" onchange="toggleBox('password-options-box', this.checked)" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                        </label>
+                    </div>
 
-            <!-- PROGRESS OVERLAY -->
+                    <div id="password-options-box" class="hidden space-y-2 pt-2 border-t border-slate-800">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Set Visitor Password Key:</label>
+                            <input type="password" id="site-password-input" placeholder="Enter password key" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Dev WhatsApp Number (GET KEY Button, e.g. 923294675242):</label>
+                            <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg overflow-hidden">
+                                <span class="bg-slate-800 px-3 py-2 text-[11px] text-slate-400 font-mono border-r border-slate-700">https://wa.me/</span>
+                                <input type="text" id="site-whatsapp-input" value="923294675242" placeholder="923294675242" class="w-full bg-transparent px-3 py-2 text-xs text-emerald-400 font-mono focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INTRO / WELCOME POPUP TOGGLE -->
+                <div class="bg-slate-950/70 p-3.5 border border-slate-800 rounded-xl space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                                <i class="fa-regular fa-hand text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-slate-200 block">Intro / Welcome Popup</span>
+                                <span class="text-[10px] text-slate-400 block">Greet visitors with a custom welcome note</span>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="enable-intro-check" onchange="toggleBox('intro-options-box', this.checked)" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                        </label>
+                    </div>
+
+                    <div id="intro-options-box" class="hidden space-y-2 pt-2 border-t border-slate-800">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Intro / Welcome Message Content:</label>
+                            <textarea id="site-intro-msg" rows="3" placeholder="HELLO ASALAMUALAIKUM 👋&#10;&#10;WELCOME TO MY TOOLKIT&#10;&#10;THIS TOOLKIT IS DEVELOPED BY HASSAN..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white font-mono focus:outline-none focus:border-blue-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHANNEL FOLLOW POPUP TOGGLE -->
+                <div class="bg-slate-950/70 p-3.5 border border-slate-800 rounded-xl space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                                <i class="fa-solid fa-bullhorn text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-slate-200 block">Channel Follow Popup</span>
+                                <span class="text-[10px] text-slate-400 block">Prompt users to join WhatsApp/Telegram channel</span>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="enable-channel-check" onchange="toggleBox('channel-options-box', this.checked)" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </div>
+
+                    <div id="channel-options-box" class="hidden space-y-2.5 pt-2 border-t border-slate-800">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Popup Headline:</label>
+                            <input type="text" id="site-channel-headline" value="FOLLOW MY WHATSAPP SOURCE CODES CHANNEL" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-semibold focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Channel Link (WhatsApp/Telegram/TikTok):</label>
+                            <input type="text" id="site-channel-link" placeholder="https://whatsapp.com/channel/..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-blue-400 font-mono focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Description Text:</label>
+                            <textarea id="site-channel-desc" rows="2" placeholder="ASALAMUALAIKUM 👋&#10;IN THIS CHANNEL I SHARE MY PROJECTS SOURCE CODES." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-300 font-mono focus:outline-none focus:border-emerald-500"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Button 1 Custom Name:</label>
+                                <input type="text" id="site-btn1-text" value="Follow Now" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Button 2 Custom Name:</label>
+                                <input type="text" id="site-btn2-text" value="Not Interested" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                <button onclick="openLivePreviewModal()" class="sm:col-span-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl transition flex items-center justify-center space-x-2 text-xs border border-slate-700">
+                    <i class="fa-solid fa-eye text-blue-400"></i>
+                    <span>Live Test</span>
+                </button>
+                <button id="deploy-btn" onclick="startDeployment()" class="sm:col-span-3 py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-extrabold rounded-xl shadow-lg shadow-blue-600/25 transition flex items-center justify-center space-x-2 text-sm">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span id="deploy-btn-text">Deploy & Host Website</span>
+                </button>
+            </div>
+
+            <!-- BUILD TIMER OVERLAY (~30s COUNTDOWN) -->
             <div id="deployment-progress" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-5 text-center">
                 <div class="w-16 h-16 relative mb-4">
                     <div class="w-16 h-16 rounded-full border-4 border-slate-800 border-t-blue-500 animate-spin"></div>
                     <div class="absolute inset-0 flex items-center justify-center text-xs font-black text-blue-400 font-mono" id="progress-percent">0%</div>
                 </div>
                 <h3 class="text-lg font-black text-white mb-1" id="deploy-status-title">Deploying Project...</h3>
-                <p class="text-[11px] text-slate-400 max-w-xs font-mono mb-4" id="deploy-status-detail">Initializing...</p>
+                <p class="text-[11px] text-slate-400 max-w-xs font-mono mb-4" id="deploy-status-detail">Initializing project structure...</p>
+                
                 <div class="w-full max-w-xs bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div id="progress-bar-fill" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full w-0 transition-all"></div>
+                    <div id="progress-bar-fill" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full w-0 transition-all duration-300"></div>
                 </div>
+                <p class="text-[10px] text-slate-500 mt-3">Optimizing bundle & publishing to CDN edge...</p>
             </div>
 
             <!-- RESULT DISPLAY -->
             <div id="deploy-result" class="hidden mt-5 p-4 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-center">
+                <div class="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 text-lg mx-auto mb-2">
+                    <i class="fa-solid fa-check"></i>
+                </div>
                 <h3 id="result-heading" class="text-base font-black text-white mb-1">Website Live On CDN!</h3>
+                <p class="text-[11px] text-slate-400 mb-3">Your website is active and accessible worldwide.</p>
+                
                 <div class="flex items-center space-x-2 bg-slate-950 p-2 rounded-lg border border-slate-800 mb-3">
                     <input type="text" id="result-url" readonly class="bg-transparent text-xs text-emerald-400 font-mono w-full px-2 focus:outline-none">
-                    <button onclick="copyResultUrl()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-xs font-semibold">Copy</button>
+                    <button onclick="copyResultUrl()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-xs font-semibold">
+                        Copy
+                    </button>
                 </div>
-                <a id="result-view-btn" href="#" target="_blank" class="inline-block w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition">Open Live Site</a>
+
+                <div class="flex space-x-2">
+                    <a id="result-view-btn" href="#" target="_blank" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Live Site
+                    </a>
+                    <button onclick="resetDeployForm()" class="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition">
+                        Deploy Another
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- DEVICE DEPLOYMENT HISTORY -->
+        <div class="max-w-3xl mx-auto mt-8">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> My Device Deployments
+                </h3>
+                <span id="history-counter" class="text-xs bg-slate-900 text-slate-400 px-2.5 py-0.5 rounded-full border border-slate-800 font-mono">0 Projects</span>
+            </div>
+
+            <div id="history-container" class="glass-panel border border-slate-800 rounded-xl p-3 divide-y divide-slate-800">
+                <div id="empty-history" class="text-center py-6 text-slate-500 text-xs">
+                    No hosted projects yet. Deploy files above to view history!
+                </div>
             </div>
         </div>
 
-        <!-- HISTORY SECTION -->
+        <!-- GLOBAL LIVE PROJECTS FEED (FIREBASE REALTIME) -->
         <div class="max-w-3xl mx-auto mt-8">
-            <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> My Device Deployments
-            </h3>
-            <div id="history-container" class="glass-panel border border-slate-800 rounded-xl p-3 divide-y divide-slate-800">
-                <div id="empty-history" class="text-center py-6 text-slate-500 text-xs">No hosted projects yet.</div>
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-earth-americas text-emerald-400 animate-pulse"></i> Global Live Projects
+                </h3>
+                <span id="global-counter" class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-mono font-bold">Realtime Sync</span>
+            </div>
+
+            <div id="global-container" class="glass-panel border border-slate-800 rounded-xl p-3 divide-y divide-slate-800 max-h-72 overflow-y-auto">
+                <div id="empty-global" class="text-center py-6 text-slate-500 text-xs">
+                    Loading global live projects...
+                </div>
             </div>
         </div>
+
     </main>
+
+    <!-- LIVE PREVIEW MODAL -->
+    <div id="live-preview-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex flex-col p-3 sm:p-6">
+        <div class="glass-panel border border-slate-800 rounded-2xl flex-1 flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                    <span class="text-xs font-mono text-slate-400 ml-1.5">Live Testing Sandbox</span>
+                </div>
+                <button onclick="closeLivePreviewModal()" aria-label="Close Preview" class="text-slate-400 hover:text-white transition px-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            <iframe id="live-preview-iframe" class="w-full flex-1 bg-white border-none"></iframe>
+        </div>
+    </div>
 
     <!-- CODE EDITOR MODAL -->
     <div id="single-file-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
         <div class="glass-panel border border-slate-800 rounded-2xl max-w-xl w-full p-4 sm:p-5 shadow-2xl relative">
             <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800">
-                <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-code text-blue-400"></i> Real-time Online Editor</h3>
-                <button onclick="toggleSingleFileModal(false)" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-code text-blue-400"></i> Real-time Online Editor
+                </h3>
+                <button onclick="toggleSingleFileModal(false)" aria-label="Close Editor" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
             </div>
+
             <div class="space-y-3">
-                <input type="text" id="modal-filename" value="index.html" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono text-white">
-                <textarea id="modal-code"></textarea>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Target File Name</label>
+                    <input type="text" id="modal-filename" value="index.html" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-blue-500">
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-[11px] font-semibold text-slate-300">Code Editor</label>
+                        <div class="space-x-2">
+                            <button onclick="codeMirrorEditor.setValue('')" class="text-[10px] text-rose-400 hover:underline"><i class="fa-solid fa-trash mr-0.5"></i>Clear</button>
+                            <button onclick="pasteFromClipboardModal()" class="text-[10px] text-blue-400 hover:underline"><i class="fa-solid fa-paste mr-0.5"></i>Paste</button>
+                        </div>
+                    </div>
+                    <textarea id="modal-code"></textarea>
+                </div>
+
                 <div class="flex justify-end space-x-2 pt-1">
-                    <button onclick="saveModalSingleFile()" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg">Save & Append</button>
+                    <button onclick="toggleSingleFileModal(false)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg font-semibold">Cancel</button>
+                    <button onclick="saveModalSingleFile()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg shadow-md">Save & Append</button>
                 </div>
             </div>
         </div>
@@ -499,10 +759,6 @@
         let currentProjectFiles = [];
         let isRedeployMode = false;
         let codeMirrorEditor = null;
-        let redeployCodeMirror = null;
-        let currentOverlaySiteName = '';
-        let currentEditingPassword = null;
-        let currentEditingWhatsapp = '923294675242';
 
         window.onload = function() {
             if (urlParams.get('site')) return;
@@ -515,6 +771,7 @@
             });
 
             renderHistory();
+            listenGlobalProjects();
             setupDragAndDrop();
         };
 
@@ -528,18 +785,57 @@
             else modal.classList.add('hidden');
         }
 
-        function togglePasswordFields(enabled) {
-            const box = document.getElementById('password-options-box');
+        function setThemeColor(themeKey) {
+            const body = document.getElementById('app-body');
+            body.className = "bg-gray-950 text-slate-100 antialiased min-h-screen flex flex-col justify-between relative transition-all duration-300 ";
+            
+            if (themeKey === 'gradient-bw') body.style.background = "linear-gradient(135deg, #030712 0%, #1f2937 100%)";
+            else if (themeKey === 'gradient-pg') body.style.background = "linear-gradient(135deg, #831843 0%, #064e3b 100%)";
+            else if (themeKey === 'gradient-gy') body.style.background = "linear-gradient(135deg, #064e3b 0%, #713f12 100%)";
+            else if (themeKey === 'gradient-bp') body.style.background = "linear-gradient(135deg, #030712 0%, #4c1d95 100%)";
+            else body.style.background = "#030712";
+            
+            localStorage.setItem('hh_custom_bg', body.style.background);
+            toggleSidebarMenu(false);
+        }
+
+        async function pasteFromClipboardModal() {
+            try {
+                const text = await navigator.clipboard.readText();
+                codeMirrorEditor.setValue(text);
+            } catch (err) {
+                alert('Failed to paste code from clipboard.');
+            }
+        }
+
+        function toggleBox(boxId, enabled) {
+            const box = document.getElementById(boxId);
             if (enabled) box.classList.remove('hidden');
             else box.classList.add('hidden');
         }
 
-        function updateRealtimeUrlPreview(val) {}
+        function updateRealtimeUrlPreview(val) {
+            const cleanVal = val.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+            const display = document.getElementById('realtime-url-display');
+            const basePath = window.location.pathname.replace('index.html', '');
+            
+            if (cleanVal.length > 0) {
+                display.innerText = `${window.location.origin}${basePath}?site=${cleanVal}`;
+            } else {
+                display.innerText = `${window.location.origin}${basePath}?site=my-custom-subdomain`;
+            }
+        }
 
         function setupDragAndDrop() {
             const dropZone = document.getElementById('drop-zone');
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+            });
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-active'), false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-active'), false);
             });
             dropZone.addEventListener('drop', (e) => {
                 handleFiles(e.dataTransfer.files);
@@ -561,25 +857,47 @@
                     });
                     updateFileListUI();
                 };
-                reader.readAsText(file);
+                if (file.name.match(/\.(html|htm|css|js|json|txt|md|svg)$/i)) {
+                    reader.readAsText(file);
+                } else {
+                    reader.readAsDataURL(file);
+                }
             });
         }
 
         function updateFileListUI() {
             const container = document.getElementById('file-list-container');
             const list = document.getElementById('file-list');
+            const count = document.getElementById('file-count');
+
             if (currentProjectFiles.length === 0) {
                 container.classList.add('hidden');
                 return;
             }
+
             container.classList.remove('hidden');
+            count.innerText = currentProjectFiles.length;
             list.innerHTML = '';
+
             currentProjectFiles.forEach((f, idx) => {
                 const item = document.createElement('div');
                 item.className = 'flex items-center justify-between p-1.5 bg-slate-900 rounded border border-slate-800';
-                item.innerHTML = `<span class="truncate">${f.name}</span> <button onclick="currentProjectFiles.splice(${idx},1);updateFileListUI();" class="text-rose-400">×</button>`;
+                item.innerHTML = `
+                    <span class="truncate max-w-[80%] flex items-center gap-1.5"><i class="fa-regular fa-file-code text-blue-400"></i>${f.name}</span>
+                    <button onclick="removeFile(${idx})" aria-label="Remove File" class="text-rose-400 hover:text-rose-300 px-1"><i class="fa-solid fa-xmark"></i></button>
+                `;
                 list.appendChild(item);
             });
+        }
+
+        function removeFile(index) {
+            currentProjectFiles.splice(index, 1);
+            updateFileListUI();
+        }
+
+        function clearFiles() {
+            currentProjectFiles = [];
+            updateFileListUI();
         }
 
         function toggleSingleFileModal(show) {
@@ -595,52 +913,129 @@
         function saveModalSingleFile() {
             const fileName = document.getElementById('modal-filename').value.trim() || 'index.html';
             const code = codeMirrorEditor.getValue();
-            if (!code) { alert('Enter some code!'); return; }
-            currentProjectFiles.push({ name: fileName, type: 'text/html', content: code });
+
+            if (!code) {
+                alert('Please enter some code first!');
+                return;
+            }
+
+            currentProjectFiles.push({
+                name: fileName,
+                type: 'text/html',
+                content: code
+            });
+
             updateFileListUI();
             toggleSingleFileModal(false);
             codeMirrorEditor.setValue('');
+        }
+
+        function openLivePreviewModal() {
+            if (currentProjectFiles.length === 0) {
+                alert('Please add or upload files/code first!');
+                return;
+            }
+
+            let indexFile = currentProjectFiles.find(f => f.name.toLowerCase() === 'index.html') || currentProjectFiles[0];
+            const blob = new Blob([indexFile.content], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+
+            const iframe = document.getElementById('live-preview-iframe');
+            iframe.src = blobUrl;
+
+            document.getElementById('live-preview-modal').classList.remove('hidden');
+        }
+
+        function closeLivePreviewModal() {
+            document.getElementById('live-preview-modal').classList.add('hidden');
+            document.getElementById('live-preview-iframe').src = 'about:blank';
         }
 
         function startDeployment() {
             const siteNameInput = document.getElementById('site-name-input');
             const siteName = siteNameInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
 
-            if (!siteName) { alert('Please enter website subdomain!'); siteNameInput.focus(); return; }
-            if (currentProjectFiles.length === 0) { alert('Please add files or code!'); return; }
+            if (!siteName) {
+                alert('Please enter a website subdomain name!');
+                siteNameInput.focus();
+                return;
+            }
+
+            if (currentProjectFiles.length === 0) {
+                alert('Please upload project files or write HTML code first!');
+                return;
+            }
+
+            const hasIndex = currentProjectFiles.some(f => f.name.toLowerCase() === 'index.html');
+            if (!hasIndex && currentProjectFiles.length === 1) {
+                currentProjectFiles[0].name = 'index.html';
+            }
 
             const progressOverlay = document.getElementById('deployment-progress');
+            const percentText = document.getElementById('progress-percent');
+            const progressBar = document.getElementById('progress-bar-fill');
+            const statusDetail = document.getElementById('deploy-status-detail');
+
             progressOverlay.classList.remove('hidden');
 
-            setTimeout(() => {
-                progressOverlay.classList.add('hidden');
-                saveProjectToCloud(siteName, currentProjectFiles);
-            }, 1500);
+            let seconds = 0;
+            const totalDuration = 20;
+
+            const timer = setInterval(() => {
+                seconds += 0.5;
+                const percentage = Math.min(Math.round((seconds / totalDuration) * 100), 100);
+                
+                percentText.innerText = percentage + '%';
+                progressBar.style.width = percentage + '%';
+
+                if (seconds >= totalDuration) {
+                    clearInterval(timer);
+                    progressOverlay.classList.add('hidden');
+                    saveProjectToCloud(siteName, currentProjectFiles);
+                }
+            }, 500);
         }
 
         function saveProjectToCloud(siteName, files) {
-            let password = null;
-            let whatsapp = '923294675242';
-
             const passCheck = document.getElementById('enable-pass-check').checked;
-            if (passCheck) {
-                password = document.getElementById('site-password-input').value;
-                whatsapp = document.getElementById('site-whatsapp-input').value || '923294675242';
-            }
+            const password = passCheck ? document.getElementById('site-password-input').value : null;
+            const whatsapp = passCheck ? document.getElementById('site-whatsapp-input').value : '923294675242';
+
+            const introCheck = document.getElementById('enable-intro-check').checked;
+            const introMessage = introCheck ? document.getElementById('site-intro-msg').value : null;
+
+            const channelCheck = document.getElementById('enable-channel-check').checked;
+            const channelHeadline = channelCheck ? document.getElementById('site-channel-headline').value : null;
+            const channelLink = channelCheck ? document.getElementById('site-channel-link').value : null;
+            const channelDesc = channelCheck ? document.getElementById('site-channel-desc').value : null;
+            const btn1Text = channelCheck ? document.getElementById('site-btn1-text').value : 'Follow Now';
+            const btn2Text = channelCheck ? document.getElementById('site-btn2-text').value : 'Not Interested';
 
             const projectData = {
                 siteName: siteName,
                 timestamp: new Date().toLocaleString(),
                 files: files,
                 password: password,
-                whatsapp: whatsapp
+                whatsapp: whatsapp,
+                enableIntro: introCheck,
+                introMessage: introMessage,
+                enableChannel: channelCheck,
+                channelHeadline: channelHeadline,
+                channelLink: channelLink,
+                channelDesc: channelDesc,
+                btn1Text: btn1Text,
+                btn2Text: btn2Text
             };
 
             localStorage.setItem('hh_site_' + siteName, JSON.stringify(projectData));
 
             let history = JSON.parse(localStorage.getItem('hh_history') || '[]');
             history = history.filter(h => h.siteName !== siteName);
-            history.unshift({ siteName: siteName, timestamp: projectData.timestamp, fileCount: files.length });
+            history.unshift({
+                siteName: siteName,
+                timestamp: projectData.timestamp,
+                fileCount: files.length
+            });
             localStorage.setItem('hh_history', JSON.stringify(history));
 
             const basePath = window.location.pathname.replace('index.html', '');
@@ -648,11 +1043,21 @@
 
             if (firebaseDB) {
                 firebaseDB.ref('hosted_projects/' + siteName).set(projectData);
+                firebaseDB.ref('global_projects/' + siteName).set({
+                    siteName: siteName,
+                    liveUrl: liveUrl,
+                    timestamp: projectData.timestamp,
+                    fileCount: files.length
+                });
             }
 
             const resultBox = document.getElementById('deploy-result');
-            document.getElementById('result-url').value = liveUrl;
-            document.getElementById('result-view-btn').href = liveUrl;
+            const resultUrlInput = document.getElementById('result-url');
+            const viewBtn = document.getElementById('result-view-btn');
+            
+            resultUrlInput.value = liveUrl;
+            viewBtn.href = liveUrl;
+
             resultBox.classList.remove('hidden');
             renderHistory();
         }
@@ -661,26 +1066,84 @@
             const input = document.getElementById('result-url');
             input.select();
             document.execCommand('copy');
-            alert('URL copied to clipboard!');
+            alert('Live Website URL copied to clipboard!');
+        }
+
+        function resetDeployForm() {
+            document.getElementById('site-name-input').value = '';
+            document.getElementById('deploy-result').classList.add('hidden');
+            updateRealtimeUrlPreview('');
+            clearFiles();
         }
 
         function renderHistory() {
             const container = document.getElementById('history-container');
+            const counter = document.getElementById('history-counter');
             const history = JSON.parse(localStorage.getItem('hh_history') || '[]');
-            if (history.length === 0) return;
+
+            counter.innerText = history.length + ' Projects';
+
+            if (history.length === 0) {
+                container.innerHTML = `<div id="empty-history" class="text-center py-6 text-slate-500 text-xs">No hosted projects yet. Deploy files above to view history!</div>`;
+                return;
+            }
+
             container.innerHTML = '';
             const basePath = window.location.pathname.replace('index.html', '');
+
             history.forEach(item => {
                 const liveUrl = `${window.location.origin}${basePath}?site=${item.siteName}`;
                 const row = document.createElement('div');
                 row.className = 'py-2.5 flex items-center justify-between text-xs';
                 row.innerHTML = `
-                    <span class="font-mono text-white font-bold">${item.siteName}</span>
-                    <a href="${liveUrl}" target="_blank" class="px-2.5 py-1 bg-blue-600/20 text-blue-400 rounded-lg">View</a>
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">✓</div>
+                        <div>
+                            <div class="font-bold text-white font-mono">${item.siteName}</div>
+                            <div class="text-slate-500 text-[10px] font-mono">${item.timestamp}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                        <a href="${liveUrl}" target="_blank" class="px-2.5 py-1 bg-blue-600/20 text-blue-400 rounded-lg font-semibold">View</a>
+                        <button onclick="copyLink('${liveUrl}')" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg">Copy</button>
+                    </div>
                 `;
                 container.appendChild(row);
             });
         }
+
+        function listenGlobalProjects() {
+            const container = document.getElementById('global-container');
+            if (!firebaseDB) return;
+
+            firebaseDB.ref('global_projects').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                container.innerHTML = '';
+                Object.values(data).reverse().forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'py-2.5 flex items-center justify-between text-xs';
+                    row.innerHTML = `
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold">🌐</div>
+                            <div>
+                                <div class="font-bold text-white font-mono">${item.siteName}</div>
+                                <div class="text-slate-500 text-[10px] font-mono">${item.timestamp}</div>
+                            </div>
+                        </div>
+                        <a href="${item.liveUrl}" target="_blank" class="px-2.5 py-1 bg-emerald-600/20 text-emerald-400 rounded-lg font-semibold">Visit</a>
+                    `;
+                    container.appendChild(row);
+                });
+            });
+        }
+
+        function copyLink(url) {
+            navigator.clipboard.writeText(url);
+            alert('URL copied!');
+        }
     </script>
 </body>
 </html>
+    
