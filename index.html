@@ -277,12 +277,19 @@
         }
 
         .CodeMirror {
-            height: 300px;
+            height: 300px !important;
             border-radius: 0.75rem;
             font-size: 13px;
             font-family: 'JetBrains Mono', monospace;
             padding: 8px;
             background: #090d16 !important;
+            color: #f8fafc !important;
+            border: 1px solid #1e293b;
+        }
+
+        .CodeMirror-gutters {
+            background: #090d16 !important;
+            border-right: 1px solid #1e293b !important;
         }
 
         #redeploy-editor-textarea + .CodeMirror {
@@ -617,7 +624,7 @@
                     <i class="fa-solid fa-eye text-blue-400"></i>
                     <span>Live Test</span>
                 </button>
-                <button id="deploy-btn" onclick="startDeployment()" class="sm:col-span-3 py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-extrabold rounded-xl shadow-lg shadow-blue-600/25 transition flex items-center justify-center space-x-2 text-sm">
+                <button id="deploy-btn" onclick="startDeployment()" class="sm:col-span-3 py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-extrabold rounded-xl shadow-lg shadow-blue-600/25 transition flex items-center justify-center space-x-2 text-sm cursor-pointer">
                     <i class="fa-solid fa-bolt"></i>
                     <span id="deploy-btn-text">Deploy & Host Website</span>
                 </button>
@@ -739,16 +746,16 @@
                     <div class="flex items-center justify-between mb-1">
                         <label class="text-[11px] font-semibold text-slate-300">Code Editor</label>
                         <div class="space-x-2">
-                            <button onclick="codeMirrorEditor.setValue('')" class="text-[10px] text-rose-400 hover:underline"><i class="fa-solid fa-trash mr-0.5"></i>Clear</button>
-                            <button onclick="pasteFromClipboardModal()" class="text-[10px] text-blue-400 hover:underline"><i class="fa-solid fa-paste mr-0.5"></i>Paste</button>
+                            <button onclick="clearEditorCode()" class="text-[10px] text-rose-400 hover:underline cursor-pointer"><i class="fa-solid fa-trash mr-0.5"></i>Clear</button>
+                            <button onclick="pasteFromClipboardModal()" class="text-[10px] text-blue-400 hover:underline cursor-pointer"><i class="fa-solid fa-paste mr-0.5"></i>Paste</button>
                         </div>
                     </div>
                     <textarea id="modal-code"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-2 pt-1">
-                    <button onclick="toggleSingleFileModal(false)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg font-semibold">Cancel</button>
-                    <button onclick="saveModalSingleFile()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg shadow-md">Save & Append</button>
+                    <button onclick="toggleSingleFileModal(false)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg font-semibold cursor-pointer">Cancel</button>
+                    <button onclick="saveModalSingleFile()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg shadow-md cursor-pointer">Save & Append</button>
                 </div>
             </div>
         </div>
@@ -767,7 +774,8 @@
                 mode: 'htmlmixed',
                 theme: 'dracula',
                 lineNumbers: true,
-                autoCloseTags: true
+                autoCloseTags: true,
+                lineWrapping: true
             });
 
             renderHistory();
@@ -802,9 +810,17 @@
         async function pasteFromClipboardModal() {
             try {
                 const text = await navigator.clipboard.readText();
-                codeMirrorEditor.setValue(text);
+                if (codeMirrorEditor) {
+                    codeMirrorEditor.setValue(text);
+                }
             } catch (err) {
                 alert('Failed to paste code from clipboard.');
+            }
+        }
+
+        function clearEditorCode() {
+            if (codeMirrorEditor) {
+                codeMirrorEditor.setValue('');
             }
         }
 
@@ -884,7 +900,7 @@
                 item.className = 'flex items-center justify-between p-1.5 bg-slate-900 rounded border border-slate-800';
                 item.innerHTML = `
                     <span class="truncate max-w-[80%] flex items-center gap-1.5"><i class="fa-regular fa-file-code text-blue-400"></i>${f.name}</span>
-                    <button onclick="removeFile(${idx})" aria-label="Remove File" class="text-rose-400 hover:text-rose-300 px-1"><i class="fa-solid fa-xmark"></i></button>
+                    <button onclick="removeFile(${idx})" aria-label="Remove File" class="text-rose-400 hover:text-rose-300 px-1 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                 `;
                 list.appendChild(item);
             });
@@ -904,7 +920,9 @@
             const modal = document.getElementById('single-file-modal');
             if (show) {
                 modal.classList.remove('hidden');
-                setTimeout(() => codeMirrorEditor.refresh(), 100);
+                setTimeout(() => {
+                    if (codeMirrorEditor) codeMirrorEditor.refresh();
+                }, 100);
             } else {
                 modal.classList.add('hidden');
             }
@@ -912,7 +930,7 @@
 
         function saveModalSingleFile() {
             const fileName = document.getElementById('modal-filename').value.trim() || 'index.html';
-            const code = codeMirrorEditor.getValue();
+            const code = codeMirrorEditor ? codeMirrorEditor.getValue() : '';
 
             if (!code) {
                 alert('Please enter some code first!');
@@ -927,7 +945,7 @@
 
             updateFileListUI();
             toggleSingleFileModal(false);
-            codeMirrorEditor.setValue('');
+            if (codeMirrorEditor) codeMirrorEditor.setValue('');
         }
 
         function openLivePreviewModal() {
@@ -974,7 +992,6 @@
             const progressOverlay = document.getElementById('deployment-progress');
             const percentText = document.getElementById('progress-percent');
             const progressBar = document.getElementById('progress-bar-fill');
-            const statusDetail = document.getElementById('deploy-status-detail');
 
             progressOverlay.classList.remove('hidden');
 
@@ -1105,7 +1122,7 @@
                     </div>
                     <div class="flex items-center space-x-1.5">
                         <a href="${liveUrl}" target="_blank" class="px-2.5 py-1 bg-blue-600/20 text-blue-400 rounded-lg font-semibold">View</a>
-                        <button onclick="copyLink('${liveUrl}')" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg">Copy</button>
+                        <button onclick="copyLink('${liveUrl}')" class="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg cursor-pointer">Copy</button>
                     </div>
                 `;
                 container.appendChild(row);
@@ -1146,4 +1163,3 @@
     </script>
 </body>
 </html>
-    
