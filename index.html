@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Caveat:wght@600;750&display=swap" rel="stylesheet">
     <!-- CodeMirror Editor Resources -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
@@ -44,6 +46,7 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const siteQuery = urlParams.get('site');
+        let activeLoadedProject = null;
 
         if (siteQuery) {
             document.documentElement.innerHTML = `
@@ -51,8 +54,10 @@
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Loading ${siteQuery} | HassanHost Global Edge Network</title>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
                     <style>
-                        body { background: #030712; color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; box-sizing: border-box; }
+                        body { background: #030712; color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; box-sizing: border-box; }
                         .spinner { width: 44px; height: 44px; border: 3px solid rgba(59, 130, 246, 0.15); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.65s linear infinite; margin-bottom: 16px; }
                         @keyframes spin { to { transform: rotate(360deg); } }
                     </style>
@@ -71,25 +76,35 @@
                         if (!project) {
                             const localData = localStorage.getItem('hh_site_' + siteQuery);
                             if (localData) {
-                                renderHostedWebsiteData(JSON.parse(localData));
+                                initHostedExperience(JSON.parse(localData));
                             } else {
                                 showNotFoundError(siteQuery);
                             }
                         } else {
-                            renderHostedWebsiteData(project);
+                            initHostedExperience(project);
                         }
                     }).catch(() => {
-                        showNotFoundError(siteQuery);
+                        const localData = localStorage.getItem('hh_site_' + siteQuery);
+                        if (localData) {
+                            initHostedExperience(JSON.parse(localData));
+                        } else {
+                            showNotFoundError(siteQuery);
+                        }
                     });
                 } else {
-                    showNotFoundError(siteQuery);
+                    const localData = localStorage.getItem('hh_site_' + siteQuery);
+                    if (localData) {
+                        initHostedExperience(JSON.parse(localData));
+                    } else {
+                        showNotFoundError(siteQuery);
+                    }
                 }
             });
         }
 
         function showNotFoundError(siteName) {
             document.body.innerHTML = `
-                <div style="background:#030712; color:#fff; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:-apple-system, sans-serif; text-align:center; padding:24px;">
+                <div style="background:#030712; color:#fff; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Inter', sans-serif; text-align:center; padding:24px;">
                     <div style="width:60px; height:60px; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:26px; color:#ef4444; margin-bottom:16px;">⚠️</div>
                     <h1 style="font-size:24px; font-weight:800; margin-bottom:8px; letter-spacing:-0.5px;">Site Not Found</h1>
                     <p style="color:#94a3b8; font-size:13px; max-width:340px; margin-bottom:20px; line-height:1.5;">Subdomain <b>"${siteName}"</b> could not be located on the HassanHost CDN engine.</p>
@@ -98,49 +113,166 @@
             `;
         }
 
-        function renderHostedWebsiteData(project) {
-            if (project.password) {
-                const waNum = project.whatsapp || '923294675242';
-                const waUrl = `https://wa.me/${waNum}?text=Hello,%20I%20need%20the%20access%20key%20for%20site:%20${project.siteName}`;
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
-                document.body.innerHTML = `
-                    <div style="background:#030712; color:#fff; min-height:100vh; display:flex; align-items:center; justify-content:center; font-family:-apple-system, sans-serif; padding:16px;">
-                        <div style="background:rgba(15, 23, 42, 0.95); border:1px solid rgba(255, 255, 255, 0.1); border-radius:20px; max-width:380px; width:100%; padding:28px; box-shadow:0 20px 40px rgba(0,0,0,0.6); text-align:center;">
-                            <div style="width:56px; height:56px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:#f59e0b; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto 16px auto;">🔒</div>
-                            <h2 style="font-size:20px; font-weight:800; margin-bottom:6px;">Protected Deployment</h2>
-                            <p style="color:#94a3b8; font-size:12px; margin-bottom:20px; line-height:1.4;">Enter the security key to decrypt and view <b>${project.siteName}</b></p>
-                            
-                            <input type="password" id="site-key-input" placeholder="Enter Access Key..." style="width:100%; background:#090d16; border:1px solid #374151; color:#fff; padding:12px; border-radius:12px; font-size:13px; outline:none; margin-bottom:16px; box-sizing:border-box;">
-                            
-                            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-                                <a href="${waUrl}" target="_blank" style="flex:1; background:#10B981; color:#fff; padding:12px; text-decoration:none; border-radius:10px; font-weight:700; font-size:12px; display:inline-flex; align-items:center; justify-content:center; gap:5px;">
-                                    <i class="fa-brands fa-whatsapp"></i> GET KEY
-                                </a>
-                                <button onclick='verifyKeyDirect("${project.siteName}", ${JSON.stringify(project.password)})' style="flex:1; background:#2563eb; color:#fff; border:none; padding:12px; border-radius:10px; font-weight:700; font-size:12px; cursor:pointer;">
-                                    UNLOCK
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
+        function initHostedExperience(project) {
+            activeLoadedProject = project;
+            const hasPassword = Boolean(project.password);
+            const hasWelcome = Boolean(project.welcomeEnabled && project.welcomeMsg);
+            const hasChannel = Boolean(project.channelEnabled && project.channelLink);
+
+            if (!hasPassword && !hasWelcome && !hasChannel) {
+                launchSiteIframeDirect(project);
                 return;
             }
 
-            launchSiteIframeDirect(project);
+            const waNum = (project.whatsapp || '923294675242').replace(/[^0-9]/g, '');
+            const waUrl = `https://wa.me/${waNum}?text=${encodeURIComponent('Hello, I need the access key for site: ' + project.siteName)}`;
+            const formattedProjectTitle = escapeHtml(project.siteName.replace(/-/g, ' ').toUpperCase());
+
+            const welcomeFormatted = escapeHtml(project.welcomeMsg || '').replace(/\n/g, '<br>');
+            const channelTitle = escapeHtml(project.channelTitle || 'FOLLOW MY WHATSAPP SOURCE CODES CHANNEL');
+            const channelDescFormatted = escapeHtml(project.channelDesc || '').replace(/\n/g, '<br>');
+            const channelFollowBtnText = escapeHtml(project.channelFollowText || 'Follow Now');
+            const channelCloseBtnText = escapeHtml(project.channelCloseText || 'Not Interested');
+            const channelUrl = escapeHtml(project.channelLink || '#');
+
+            document.body.innerHTML = `
+                <div id="hosted-gate-wrapper" style="background:#eef8ff; color:#1e293b; min-height:100vh; width:100%; display:flex; align-items:center; justify-content:center; font-family:'Inter', sans-serif; padding:16px; position:fixed; inset:0; overflow-y:auto; box-sizing:border-box;">
+                    
+                    <!-- 1. PASSWORD GATE BOX -->
+                    <div id="password-box-card" style="display:${hasPassword ? 'block' : 'none'}; background:#ffffff; border:1px solid #cffafe; border-radius:30px; max-width:400px; width:100%; padding:30px 26px; box-shadow:0 25px 50px -12px rgba(6,182,212,0.15); text-align:center; position:relative; margin:auto; box-sizing:border-box;">
+                        <div style="width:64px; height:64px; background:#ecfeff; border:2px solid #a5f3fc; color:#06b6d4; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 14px auto; box-shadow:0 0 20px rgba(34,211,238,0.25);">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div style="font-size:10px; font-weight:800; letter-spacing:2.5px; color:#06b6d4; margin-bottom:6px; text-transform:uppercase;">PROTECTED AREA</div>
+                        <h2 style="font-size:32px; font-weight:800; margin:0 0 6px 0; font-family:'Caveat', cursive; color:#0f172a; line-height:1.1; word-break:break-word;">${formattedProjectTitle}</h2>
+                        <p style="color:#64748b; font-size:12px; margin:0 0 22px 0;">Enter your access key to continue</p>
+                        
+                        <div style="text-align:left; margin-bottom:14px;">
+                            <label style="display:block; font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:1.2px; margin-bottom:6px;">ACCESS KEY</label>
+                            <div id="key-input-wrapper" style="position:relative; display:flex; align-items:center; background:#f0fdfa; border:1.5px solid #99f6e4; border-radius:16px; padding:4px 14px; transition:border-color 0.2s;">
+                                <input type="password" id="site-key-input" placeholder="Enter your password" style="width:100%; background:transparent; border:none; color:#0f172a; padding:10px 0; font-size:13px; outline:none; font-family:monospace;" onkeypress="if(event.key === 'Enter') verifyHostedKey()">
+                                <button type="button" onclick="togglePasswordVisibility()" style="background:transparent; border:none; cursor:pointer; color:#64748b; padding:4px; font-size:14px;">
+                                    <i id="eye-icon" class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <p id="wrong-pass-error" style="display:none; color:#ef4444; font-size:12px; margin:8px 0 0 2px; font-weight:600; align-items:center; gap:6px;">
+                                <i class="fa-solid fa-circle-info"></i> <span>Wrong password.</span>
+                            </p>
+                        </div>
+
+                        <div style="display:flex; justify-content:center; gap:7px; margin:18px 0 22px 0;">
+                            <span style="width:7px; height:7px; border:1.5px solid #cbd5e1; border-radius:50%;"></span>
+                            <span style="width:7px; height:7px; border:1.5px solid #cbd5e1; border-radius:50%;"></span>
+                            <span style="width:7px; height:7px; border:1.5px solid #cbd5e1; border-radius:50%;"></span>
+                            <span style="width:7px; height:7px; border:1.5px solid #cbd5e1; border-radius:50%;"></span>
+                            <span style="width:7px; height:7px; border:1.5px solid #cbd5e1; border-radius:50%;"></span>
+                            <span style="width:7px; height:7px; border:1.5px solid #cbd5e1; border-radius:50%;"></span>
+                        </div>
+
+                        <button type="button" onclick="verifyHostedKey()" style="width:100%; background:#00f0ff; color:#ffffff; border:none; padding:14px; border-radius:16px; font-weight:800; font-size:19px; cursor:pointer; box-shadow:0 10px 25px rgba(0,240,255,0.35); margin-bottom:12px; font-family:'Caveat', cursive; letter-spacing:1.2px; text-transform:uppercase;">
+                            UNLOCK ACCESS
+                        </button>
+                        
+                        <a href="${waUrl}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; background:#ffffff; border:1px solid #e2e8f0; color:#475569; padding:12px; border-radius:16px; text-decoration:none; font-weight:600; font-size:12px; box-sizing:border-box;">
+                            <i class="fa-regular fa-message text-slate-400"></i>
+                            <span style="text-decoration:underline; text-underline-offset:3px;">Contact to Purchase Key</span>
+                        </a>
+                    </div>
+
+                    <!-- 2. WELCOME INTRO MODAL -->
+                    <div id="welcome-intro-modal" style="display:${(!hasPassword && hasWelcome) ? 'block' : 'none'}; background:#ffffff; border-radius:28px; max-width:400px; width:100%; padding:30px 24px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.2); margin:auto; box-sizing:border-box; border-top:4px solid #00f0ff;">
+                        <div style="font-size:40px; margin-bottom:10px;">👋</div>
+                        <h3 style="font-size:28px; font-weight:800; color:#00e5ff; font-family:'Caveat', cursive; margin:0 0 16px 0; letter-spacing:1px;">WELCOME</h3>
+                        <div style="background:#f8fafc; border:1px solid #f1f5f9; border-radius:16px; padding:16px; text-align:left; font-family:monospace; font-size:12px; color:#334155; line-height:1.7; margin-bottom:22px; word-break:break-word;">
+                            ${welcomeFormatted}
+                        </div>
+                        <button type="button" onclick="proceedAfterWelcome()" style="width:100%; background:#00f0ff; color:#ffffff; border:none; padding:13px; border-radius:16px; font-weight:800; font-size:18px; cursor:pointer; font-family:'Caveat', cursive; margin-bottom:10px; box-shadow:0 8px 20px rgba(0,240,255,0.35); letter-spacing:1px;">
+                            GOT IT ✓
+                        </button>
+                        <button type="button" onclick="proceedAfterWelcome()" style="width:100%; background:#ffffff; border:1px solid #e2e8f0; color:#475569; padding:12px; border-radius:16px; font-weight:700; font-size:12px; cursor:pointer; letter-spacing:1px;">
+                            CLOSE
+                        </button>
+                    </div>
+
+                    <!-- 3. CHANNEL FOLLOW POPUP MODAL -->
+                    <div id="channel-follow-modal" style="display:${(!hasPassword && !hasWelcome && hasChannel) ? 'block' : 'none'}; background:#ffffff; border-radius:28px; max-width:400px; width:100%; padding:28px 24px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.2); margin:auto; box-sizing:border-box; border-top:4px solid #00f0ff;">
+                        <div style="width:40px; height:4px; background:#e2e8f0; border-radius:99px; margin:0 auto 18px auto;"></div>
+                        <div style="width:58px; height:58px; background:#ecfeff; border:1.5px solid #a5f3fc; color:#06b6d4; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 16px auto; box-shadow:0 8px 20px rgba(6,182,212,0.15);">
+                            <i class="fa-solid fa-bullhorn"></i>
+                        </div>
+                        <h3 style="font-size:24px; font-weight:800; color:#0f172a; font-family:'Caveat', cursive; letter-spacing:0.8px; margin:0 0 14px 0; line-height:1.2; text-transform:uppercase; word-break:break-word;">${channelTitle}</h3>
+                        <div style="background:#f8fafc; border:1px solid #f1f5f9; border-radius:16px; padding:16px; text-align:center; font-family:monospace; font-size:12px; color:#475569; line-height:1.7; margin-bottom:22px; word-break:break-word;">
+                            ${channelDescFormatted}
+                        </div>
+                        <a href="${channelUrl}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#00f0ff; color:#ffffff; padding:13px; border-radius:16px; text-decoration:none; font-weight:800; font-size:19px; font-family:'Caveat', cursive; margin-bottom:10px; box-shadow:0 8px 20px rgba(0,240,255,0.35); box-sizing:border-box;">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-sm"></i> <span>${channelFollowBtnText}</span>
+                        </a>
+                        <button type="button" onclick="launchSiteIframeDirect(activeLoadedProject)" style="width:100%; background:#ffffff; border:1px solid #e2e8f0; color:#475569; padding:12px; border-radius:16px; font-weight:700; font-size:12px; cursor:pointer; letter-spacing:1px; text-transform:uppercase;">
+                            ${channelCloseBtnText}
+                        </button>
+                    </div>
+
+                </div>
+            `;
         }
 
-        function verifyKeyDirect(siteName, realPassword) {
-            const inputKey = document.getElementById('site-key-input').value;
-            if (inputKey === realPassword) {
-                firebaseDB.ref('hosted_projects/' + siteName).once('value').then((snapshot) => {
-                    launchSiteIframeDirect(snapshot.val());
-                });
+        function togglePasswordVisibility() {
+            const input = document.getElementById('site-key-input');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash text-sm';
             } else {
-                alert('Incorrect Access Key!');
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye text-sm';
+            }
+        }
+
+        function verifyHostedKey() {
+            if (!activeLoadedProject) return;
+            const inputKey = document.getElementById('site-key-input').value;
+            const errorMsg = document.getElementById('wrong-pass-error');
+            const inputWrapper = document.getElementById('key-input-wrapper');
+
+            if (inputKey === activeLoadedProject.password) {
+                errorMsg.style.display = 'none';
+                document.getElementById('password-box-card').style.display = 'none';
+
+                if (activeLoadedProject.welcomeEnabled && activeLoadedProject.welcomeMsg) {
+                    document.getElementById('welcome-intro-modal').style.display = 'block';
+                } else if (activeLoadedProject.channelEnabled && activeLoadedProject.channelLink) {
+                    document.getElementById('channel-follow-modal').style.display = 'block';
+                } else {
+                    launchSiteIframeDirect(activeLoadedProject);
+                }
+            } else {
+                errorMsg.style.display = 'flex';
+                inputWrapper.style.borderColor = '#ef4444';
+                inputWrapper.style.background = '#fef2f2';
+            }
+        }
+
+        function proceedAfterWelcome() {
+            document.getElementById('welcome-intro-modal').style.display = 'none';
+            if (activeLoadedProject && activeLoadedProject.channelEnabled && activeLoadedProject.channelLink) {
+                document.getElementById('channel-follow-modal').style.display = 'block';
+            } else {
+                launchSiteIframeDirect(activeLoadedProject);
             }
         }
 
         function launchSiteIframeDirect(project) {
+            if (!project || !project.files || project.files.length === 0) return;
             let indexFile = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
             const blob = new Blob([indexFile.content], { type: 'text/html' });
             const blobUrl = URL.createObjectURL(blob);
@@ -167,7 +299,7 @@
     </script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Caveat:wght@600;750&display=swap');
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -180,7 +312,6 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Glassmorphism Styles */
         .glass-panel {
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(16px);
@@ -215,10 +346,9 @@
         }
 
         #redeploy-editor-textarea + .CodeMirror {
-            height: 360px !important;
+            height: 320px !important;
         }
 
-        /* Mobile Scrollbar Tuning */
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -234,11 +364,9 @@
 </head>
 <body class="bg-gray-950 text-slate-100 antialiased min-h-screen flex flex-col justify-between relative" id="app-body">
 
-    <!-- TOP NAVIGATION BAR (MOBILE OPTIMIZED) -->
+    <!-- TOP NAVIGATION BAR -->
     <header class="border-b border-slate-800/80 glass-panel sticky top-0 z-40 shadow-lg">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
-            
-            <!-- Left: Menu Drawer Toggle + Brand Logo -->
             <div class="flex items-center space-x-2.5">
                 <button onclick="toggleSidebarMenu(true)" aria-label="Open Navigation Menu" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-200 active:scale-95 flex items-center justify-center font-bold transition">
                     <i class="fa-solid fa-bars text-base"></i>
@@ -251,16 +379,13 @@
                     <span class="text-base sm:text-lg font-black tracking-tight">Hassan<span class="text-blue-500">Host</span></span>
                 </div>
 
-                <!-- RESTORED: 100% Free Live Badge -->
                 <div class="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full font-semibold text-[11px]">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                     <span>100% Free Live</span>
                 </div>
             </div>
             
-            <!-- Right Actions: Create New File & Host Quick Action -->
             <div class="flex items-center space-x-2">
-                <!-- RESTORED: Create New File Button -->
                 <button onclick="toggleSingleFileModal(true)" class="px-2.5 py-1.5 text-xs font-semibold bg-slate-900 border border-slate-700/80 hover:border-blue-500/50 text-slate-200 rounded-xl transition flex items-center gap-1.5 shadow-sm active:scale-95">
                     <i class="fa-solid fa-file-code text-blue-400"></i>
                     <span class="hidden sm:inline">Create File</span>
@@ -274,11 +399,10 @@
         </div>
     </header>
 
-    <!-- NAVIGATION DRAWER (MOBILE-FIRST) -->
+    <!-- NAVIGATION DRAWER -->
     <div id="sidebar-menu-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex justify-start">
         <div class="bg-slate-900 border-r border-slate-800 w-full max-w-xs sm:max-w-sm h-full overflow-y-auto p-5 flex flex-col justify-between shadow-2xl relative">
             <div>
-                <!-- Menu Header -->
                 <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-800">
                     <div class="flex items-center space-x-2.5">
                         <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-sm">
@@ -291,10 +415,7 @@
                     </button>
                 </div>
 
-                <!-- MENU SECTIONS -->
                 <div class="space-y-5 text-xs">
-                    
-                    <!-- SOURCE CODES -->
                     <div>
                         <div class="text-slate-400 font-bold mb-2 uppercase tracking-wider text-[10px]">Source Codes</div>
                         <a href="https://whatsapp.com/channel/0029VbE1NH99Bb65S8oOnS47" target="_blank" class="block p-3 bg-slate-950/70 rounded-xl border border-slate-800 hover:border-emerald-500/50 transition">
@@ -305,7 +426,6 @@
                         </a>
                     </div>
 
-                    <!-- DEVELOPER CONTACTS (CORRECTED: DEV TG) -->
                     <div>
                         <div class="text-slate-400 font-bold mb-2 uppercase tracking-wider text-[10px]">Developer Contacts</div>
                         <div class="space-y-2">
@@ -315,7 +435,6 @@
                                 </div>
                                 <div class="text-[10px] text-slate-400 font-mono">+923294675242</div>
                             </a>
-                            <!-- FIX APPLIED: DEV TG (Telegram) -->
                             <a href="https://t.me/hassanff01" target="_blank" class="block p-2.5 bg-slate-950/70 rounded-xl border border-slate-800 hover:border-sky-500/50 transition">
                                 <div class="font-bold text-white mb-0.5 flex items-center gap-2">
                                     <i class="fa-brands fa-telegram text-sky-400 text-sm"></i> DEV TG
@@ -325,7 +444,6 @@
                         </div>
                     </div>
 
-                    <!-- OTHER PROJECTS -->
                     <div>
                         <div class="text-slate-400 font-bold mb-2 uppercase tracking-wider text-[10px]">Other Ecosystem Projects</div>
                         <div class="space-y-1.5">
@@ -348,14 +466,12 @@
                         </div>
                     </div>
 
-                    <!-- SPECIAL WHATSAPP STYLE BANNER LINK -->
                     <div>
                         <a href="https://wa.me/923294675242" target="_blank" class="block p-2.5 bg-slate-950 rounded-xl border border-dashed border-emerald-500/40 hover:border-emerald-400 transition text-center font-bold text-slate-200">
                             ~ Hassan <span class="text-emerald-400 font-normal">OTHER PROJECTS COMING SOON...</span>
                         </a>
                     </div>
 
-                    <!-- CHANGE THEME COLOR OPTIONS -->
                     <div class="pt-2 border-t border-slate-800">
                         <div class="text-slate-400 font-bold mb-2 uppercase tracking-wider text-[10px]">Change Theme Color</div>
                         <div class="grid grid-cols-2 gap-1.5">
@@ -379,7 +495,6 @@
                             </button>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -389,10 +504,9 @@
         </div>
     </div>
 
-    <!-- MAIN CONSOLE DASHBOARD (MOBILE-FIRST) -->
+    <!-- MAIN CONSOLE DASHBOARD -->
     <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 flex-grow w-full">
         
-        <!-- HERO BANNER -->
         <div class="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
             <h1 class="text-3xl sm:text-5xl font-black tracking-tight mb-2 leading-tight">
                 Mobile-First Cloud Hosting <br/>
@@ -403,7 +517,6 @@
             </p>
         </div>
 
-        <!-- CLOUD METRICS BAR (MOBILE OPTIMIZED GRID) -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-3xl mx-auto mb-6">
             <div class="glass-card p-3 rounded-xl text-center">
                 <div class="text-base sm:text-xl font-black text-white font-mono">99.99%</div>
@@ -423,7 +536,6 @@
             </div>
         </div>
 
-        <!-- HOSTING DEPLOYMENT CONSOLE -->
         <div id="deploy-section" class="max-w-3xl mx-auto glass-panel border border-slate-800 rounded-2xl p-4 sm:p-7 shadow-2xl relative overflow-hidden">
             
             <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-800">
@@ -443,7 +555,7 @@
                 </button>
             </div>
 
-            <!-- STEP 1: WEBSITE SUBDOMAIN NAME -->
+            <!-- STEP 1: SUBDOMAIN -->
             <div class="mb-5">
                 <label for="site-name-input" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
                     <i class="fa-solid fa-globe text-blue-400 mr-1"></i> 1. Enter Website Subdomain:
@@ -457,13 +569,13 @@
                 </div>
             </div>
 
-            <!-- STEP 2: DRAG & DROP / FILE SELECTION -->
+            <!-- STEP 2: UPLOAD FILES -->
             <div class="mb-5">
                 <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
                     <i class="fa-solid fa-folder-open text-blue-400 mr-1"></i> 2. Drag & Drop Project Files:
                 </label>
                 
-                <div id="drop-zone" onclick="document.getElementById('file-input').click()" class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl p-5 text-center bg-slate-950/40 hover:bg-slate-900/60 cursor-pointer transition flex flex-col items-center justify-center min-h-[160px]">
+                <div id="drop-zone" onclick="document.getElementById('file-input').click()" class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl p-5 text-center bg-slate-950/40 hover:bg-slate-900/60 cursor-pointer transition flex flex-col items-center justify-center min-h-[150px]">
                     <input type="file" id="file-input" multiple class="hidden" onchange="handleFileSelect(event)">
                     <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-2xl mb-2">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
@@ -486,32 +598,112 @@
                 </div>
             </div>
 
-            <!-- STEP 3: ACCESS PROTECTION -->
-            <div class="mb-5 bg-slate-950/70 p-3.5 border border-slate-800 rounded-xl space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
-                            <i class="fa-solid fa-shield-halved text-xs"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs font-bold text-slate-200 block">Password Access Protection</span>
-                            <span class="text-[10px] text-slate-400 block">Require password key to view site</span>
-                        </div>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="enable-pass-check" onchange="togglePasswordFields(this.checked)" class="sr-only peer">
-                        <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                    </label>
+            <!-- STEP 3: ACCESS PROTECTION, WELCOME INTRO & CHANNEL FOLLOW POPUP SETTINGS -->
+            <div class="mb-5 space-y-3">
+                <div class="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    <i class="fa-solid fa-sliders text-blue-400 mr-1"></i> 3. Security & Intro Pop-ups (Optional):
                 </div>
 
-                <div id="password-options-box" class="hidden space-y-2 pt-2 border-t border-slate-800">
-                    <div>
-                        <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Set Visitor Password Key:</label>
-                        <input type="password" id="site-password-input" placeholder="Enter password key" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                <!-- 3A. PASSWORD ACCESS PROTECTION -->
+                <div class="bg-slate-950/70 p-3.5 border border-slate-800 rounded-xl space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                                <i class="fa-solid fa-shield-halved text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-slate-200 block">Password Access Protection</span>
+                                <span class="text-[10px] text-slate-400 block">Require password key to view site</span>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="enable-pass-check" onchange="toggleSectionBox('password-options-box', this.checked)" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                        </label>
                     </div>
-                    <div>
-                        <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Dev WhatsApp Number (GET KEY Button):</label>
-                        <input type="text" id="site-whatsapp-input" value="923294675242" placeholder="e.g. 923294675242" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
+
+                    <div id="password-options-box" class="hidden space-y-3 pt-2.5 border-t border-slate-800">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Set Visitor Password Key:</label>
+                            <input type="text" id="site-password-input" placeholder="Enter password key (e.g. 12345)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Contact to Purchase Key (WhatsApp Number):</label>
+                            <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg overflow-hidden focus-within:border-emerald-500">
+                                <span class="px-3 py-2 bg-slate-800 text-emerald-400 font-mono text-xs border-r border-slate-700 select-none">https://wa.me/</span>
+                                <input type="text" id="site-whatsapp-input" placeholder="923294675242" class="w-full bg-transparent px-3 py-2 text-xs text-white font-mono focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3B. WELCOME INTRO POP-UP OPTION -->
+                <div class="bg-slate-950/70 p-3.5 border border-slate-800 rounded-xl space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+                                <i class="fa-solid fa-hand-sparkles text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-slate-200 block">Welcome Intro Pop-up</span>
+                                <span class="text-[10px] text-slate-400 block">Show stylish welcome box before opening site</span>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="enable-welcome-check" onchange="toggleSectionBox('welcome-options-box', this.checked)" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
+                        </label>
+                    </div>
+
+                    <div id="welcome-options-box" class="hidden space-y-2 pt-2.5 border-t border-slate-800">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Custom Intro Message:</label>
+                            <textarea id="site-welcome-input" rows="4" placeholder="HELLO ASALAMUALAIKUM ??&#10;WELCOME TO MY TOOLKIT&#10;THIS TOOLKIT IS DEVELOPED BY (YOUR NAME)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3C. CHANNEL FOLLOW POP-UP OPTION -->
+                <div class="bg-slate-950/70 p-3.5 border border-slate-800 rounded-xl space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                                <i class="fa-solid fa-bullhorn text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-slate-200 block">Channel Follow Pop-up</span>
+                                <span class="text-[10px] text-slate-400 block">Promote WhatsApp, YouTube, TikTok or Telegram</span>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="enable-channel-check" onchange="toggleSectionBox('channel-options-box', this.checked)" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </div>
+
+                    <div id="channel-options-box" class="hidden space-y-2.5 pt-2.5 border-t border-slate-800">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Channel / Social Link URL:</label>
+                            <input type="url" id="site-channel-link" placeholder="https://whatsapp.com/channel/..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-cyan-400 font-mono focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Pop-up Stylish Title:</label>
+                            <input type="text" id="site-channel-title" value="FOLLOW MY WHATSAPP SOURCE CODES CHANNEL" placeholder="FOLLOW MY WHATSAPP SOURCE CODES CHANNEL" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Channel Description Message:</label>
+                            <textarea id="site-channel-desc" rows="3" placeholder="ASALAMUALAIKUM ??&#10;IN THIS CHANNEL I SHARE MY PROJECTS SOURCE CODES.&#10;IF YOU WANT TO JOIN US SO CLICK ON FOLLOW NOW BUTTON." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Primary Button Name (Custom):</label>
+                                <input type="text" id="site-channel-follow-btn" value="Follow Now" placeholder="e.g. Follow Now / Subscribe" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-cyan-300 font-semibold focus:outline-none focus:border-cyan-500">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Secondary Button Name (Custom):</label>
+                                <input type="text" id="site-channel-close-btn" value="Not Interested" placeholder="e.g. Not Interested / Skip" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300 font-semibold focus:outline-none focus:border-slate-500">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -528,7 +720,7 @@
                 </button>
             </div>
 
-            <!-- BUILD TIMER OVERLAY (~30s COUNTDOWN) -->
+            <!-- BUILD PROGRESS OVERLAY -->
             <div id="deployment-progress" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-5 text-center">
                 <div class="w-16 h-16 relative mb-4">
                     <div class="w-16 h-16 rounded-full border-4 border-slate-800 border-t-blue-500 animate-spin"></div>
@@ -570,7 +762,7 @@
 
         </div>
 
-        <!-- DEVICE DEPLOYMENT HISTORY -->
+        <!-- DEVICE DEPLOYMENTS -->
         <div class="max-w-3xl mx-auto mt-8">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -586,7 +778,7 @@
             </div>
         </div>
 
-        <!-- GLOBAL LIVE PROJECTS FEED (FIREBASE REALTIME) -->
+        <!-- GLOBAL LIVE PROJECTS -->
         <div class="max-w-3xl mx-auto mt-8">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -706,7 +898,7 @@
         </div>
 
         <div class="flex-1 p-4 max-w-4xl mx-auto w-full flex flex-col space-y-3 overflow-y-auto">
-            <div class="bg-slate-900 p-3 border border-slate-800 rounded-xl flex flex-col space-y-2.5">
+            <div class="bg-slate-900 p-3.5 border border-slate-800 rounded-xl flex flex-col space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
                         <label class="block text-[10px] text-slate-400">Target Subdomain:</label>
@@ -717,14 +909,38 @@
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+                <!-- Password & WhatsApp -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2.5 border-t border-slate-800">
                     <div>
                         <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Update Password Key:</label>
-                        <input type="password" id="redeploy-pass-input" placeholder="Update password key" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <input type="text" id="redeploy-pass-input" placeholder="Leave empty to disable" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Dev WhatsApp Contact:</label>
-                        <input type="text" id="redeploy-wa-input" placeholder="e.g. 923294675242" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Contact to Purchase Key (WhatsApp):</label>
+                        <div class="flex items-center bg-slate-950 border border-slate-700 rounded-lg overflow-hidden focus-within:border-emerald-500">
+                            <span class="px-2 py-1.5 bg-slate-800 text-emerald-400 font-mono text-[11px] border-r border-slate-700">https://wa.me/</span>
+                            <input type="text" id="redeploy-wa-input" placeholder="923294675242" class="w-full bg-transparent px-2 py-1.5 text-xs text-white font-mono focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome Intro -->
+                <div class="pt-2.5 border-t border-slate-800">
+                    <label class="block text-[10px] text-slate-400 mb-1 font-semibold">Update Welcome Intro Pop-up Message (Leave empty to disable):</label>
+                    <textarea id="redeploy-welcome-input" rows="2" placeholder="Welcome intro message..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-500"></textarea>
+                </div>
+
+                <!-- Channel Follow -->
+                <div class="pt-2.5 border-t border-slate-800 space-y-2">
+                    <label class="block text-[10px] text-emerald-400 font-bold uppercase">Update Channel Follow Pop-up (Leave link empty to disable):</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input type="url" id="redeploy-channel-link" placeholder="Channel Link URL" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-cyan-400 font-mono focus:outline-none">
+                        <input type="text" id="redeploy-channel-title" placeholder="Pop-up Title" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-bold focus:outline-none">
+                    </div>
+                    <textarea id="redeploy-channel-desc" rows="2" placeholder="Channel description message..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white font-mono focus:outline-none"></textarea>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="redeploy-channel-follow-btn" placeholder="Follow Button Text" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none">
+                        <input type="text" id="redeploy-channel-close-btn" placeholder="Close Button Text" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
                     </div>
                 </div>
             </div>
@@ -758,8 +974,7 @@
         let codeMirrorEditor = null;
         let redeployCodeMirror = null;
         let currentOverlaySiteName = '';
-        let currentEditingPassword = null;
-        let currentEditingWhatsapp = '923294675242';
+        let redeploySettingsCache = {};
 
         window.onload = function() {
             if (urlParams.get('site')) return;
@@ -796,7 +1011,12 @@
             }
         }
 
-        // DYNAMIC THEME COLOR SWITCHER
+        function toggleSectionBox(boxId, enabled) {
+            const box = document.getElementById(boxId);
+            if (enabled) box.classList.remove('hidden');
+            else box.classList.add('hidden');
+        }
+
         function setThemeColor(themeKey) {
             const body = document.getElementById('app-body');
             body.className = "bg-gray-950 text-slate-100 antialiased min-h-screen flex flex-col justify-between relative transition-all duration-300 ";
@@ -845,12 +1065,6 @@
             } catch (err) {
                 alert('Failed to paste code from clipboard.');
             }
-        }
-
-        function togglePasswordFields(enabled) {
-            const box = document.getElementById('password-options-box');
-            if (enabled) box.classList.remove('hidden');
-            else box.classList.add('hidden');
         }
 
         function updateRealtimeUrlPreview(val) {
@@ -996,28 +1210,25 @@
         }
 
         function openRedeployOverlay(siteName) {
-            if (!firebaseDB) {
-                alert('Firebase DB not connected.');
-                return;
-            }
-
-            firebaseDB.ref('hosted_projects/' + siteName).once('value').then((snapshot) => {
-                const project = snapshot.val();
+            const loadProjectIntoEditor = (project) => {
                 if (!project) {
-                    alert('Project build missing in database!');
+                    alert('Project build missing!');
                     return;
                 }
 
                 currentOverlaySiteName = siteName;
-                currentEditingPassword = project.password || null;
-                currentEditingWhatsapp = project.whatsapp || '923294675242';
-                
                 let mainIndex = project.files.find(f => f.name.toLowerCase() === 'index.html') || project.files[0];
 
                 document.getElementById('redeploy-site-title').innerText = siteName;
                 document.getElementById('redeploy-subdomain-display').innerText = siteName + '.hassan-host-top.vercel.app';
-                document.getElementById('redeploy-pass-input').value = currentEditingPassword || '';
-                document.getElementById('redeploy-wa-input').value = currentEditingWhatsapp || '';
+                document.getElementById('redeploy-pass-input').value = project.password || '';
+                document.getElementById('redeploy-wa-input').value = project.whatsapp || '';
+                document.getElementById('redeploy-welcome-input').value = project.welcomeMsg || '';
+                document.getElementById('redeploy-channel-link').value = project.channelLink || '';
+                document.getElementById('redeploy-channel-title').value = project.channelTitle || 'FOLLOW MY WHATSAPP SOURCE CODES CHANNEL';
+                document.getElementById('redeploy-channel-desc').value = project.channelDesc || '';
+                document.getElementById('redeploy-channel-follow-btn').value = project.channelFollowText || 'Follow Now';
+                document.getElementById('redeploy-channel-close-btn').value = project.channelCloseText || 'Not Interested';
                 
                 document.getElementById('redeploy-overlay-page').classList.remove('hidden');
                 
@@ -1025,7 +1236,18 @@
                     redeployCodeMirror.setValue(mainIndex ? mainIndex.content : '');
                     redeployCodeMirror.refresh();
                 }, 100);
-            });
+            };
+
+            if (firebaseDB) {
+                firebaseDB.ref('hosted_projects/' + siteName).once('value').then((snapshot) => {
+                    const project = snapshot.val() || JSON.parse(localStorage.getItem('hh_site_' + siteName) || 'null');
+                    loadProjectIntoEditor(project);
+                }).catch(() => {
+                    loadProjectIntoEditor(JSON.parse(localStorage.getItem('hh_site_' + siteName) || 'null'));
+                });
+            } else {
+                loadProjectIntoEditor(JSON.parse(localStorage.getItem('hh_site_' + siteName) || 'null'));
+            }
         }
 
         function closeRedeployOverlay() {
@@ -1041,9 +1263,25 @@
 
             const updatedPass = document.getElementById('redeploy-pass-input').value.trim();
             const updatedWa = document.getElementById('redeploy-wa-input').value.trim();
+            const updatedWelcome = document.getElementById('redeploy-welcome-input').value.trim();
+            const updatedChannelLink = document.getElementById('redeploy-channel-link').value.trim();
+            const updatedChannelTitle = document.getElementById('redeploy-channel-title').value.trim();
+            const updatedChannelDesc = document.getElementById('redeploy-channel-desc').value.trim();
+            const updatedChannelFollowBtn = document.getElementById('redeploy-channel-follow-btn').value.trim();
+            const updatedChannelCloseBtn = document.getElementById('redeploy-channel-close-btn').value.trim();
 
-            currentEditingPassword = updatedPass || null;
-            if (updatedWa) currentEditingWhatsapp = updatedWa;
+            redeploySettingsCache = {
+                password: updatedPass || null,
+                whatsapp: updatedWa || '923294675242',
+                welcomeEnabled: Boolean(updatedWelcome),
+                welcomeMsg: updatedWelcome,
+                channelEnabled: Boolean(updatedChannelLink),
+                channelLink: updatedChannelLink,
+                channelTitle: updatedChannelTitle || 'FOLLOW MY WHATSAPP SOURCE CODES CHANNEL',
+                channelDesc: updatedChannelDesc,
+                channelFollowText: updatedChannelFollowBtn || 'Follow Now',
+                channelCloseText: updatedChannelCloseBtn || 'Not Interested'
+            };
 
             closeRedeployOverlay();
 
@@ -1120,22 +1358,40 @@
         }
 
         function saveProjectToCloud(siteName, files) {
-            let password = currentEditingPassword;
-            let whatsapp = currentEditingWhatsapp;
-
-            if (!isRedeployMode) {
-                const passCheck = document.getElementById('enable-pass-check').checked;
-                password = passCheck ? document.getElementById('site-password-input').value : null;
-                whatsapp = passCheck ? document.getElementById('site-whatsapp-input').value : '923294675242';
-            }
-
-            const projectData = {
+            let projectData = {
                 siteName: siteName,
                 timestamp: new Date().toLocaleString(),
-                files: files,
-                password: password,
-                whatsapp: whatsapp
+                files: files
             };
+
+            if (isRedeployMode) {
+                Object.assign(projectData, redeploySettingsCache);
+            } else {
+                const passCheck = document.getElementById('enable-pass-check').checked;
+                const rawPass = document.getElementById('site-password-input').value.trim();
+                const rawWa = document.getElementById('site-whatsapp-input').value.trim();
+
+                const welcomeCheck = document.getElementById('enable-welcome-check').checked;
+                const rawWelcome = document.getElementById('site-welcome-input').value.trim();
+
+                const channelCheck = document.getElementById('enable-channel-check').checked;
+                const rawChannelLink = document.getElementById('site-channel-link').value.trim();
+                const rawChannelTitle = document.getElementById('site-channel-title').value.trim();
+                const rawChannelDesc = document.getElementById('site-channel-desc').value.trim();
+                const rawChannelFollowBtn = document.getElementById('site-channel-follow-btn').value.trim();
+                const rawChannelCloseBtn = document.getElementById('site-channel-close-btn').value.trim();
+
+                projectData.password = (passCheck && rawPass) ? rawPass : null;
+                projectData.whatsapp = rawWa || '923294675242';
+                projectData.welcomeEnabled = Boolean(welcomeCheck && rawWelcome);
+                projectData.welcomeMsg = rawWelcome;
+                projectData.channelEnabled = Boolean(channelCheck && rawChannelLink);
+                projectData.channelLink = rawChannelLink;
+                projectData.channelTitle = rawChannelTitle || 'FOLLOW MY WHATSAPP SOURCE CODES CHANNEL';
+                projectData.channelDesc = rawChannelDesc;
+                projectData.channelFollowText = rawChannelFollowBtn || 'Follow Now';
+                projectData.channelCloseText = rawChannelCloseBtn || 'Not Interested';
+            }
 
             localStorage.setItem('hh_site_' + siteName, JSON.stringify(projectData));
 
@@ -1183,7 +1439,7 @@
 
         function resetDeployForm() {
             isRedeployMode = false;
-            currentEditingPassword = null;
+            redeploySettingsCache = {};
             document.getElementById('engine-title-text').innerText = "Deploy Project";
             document.getElementById('deploy-btn-text').innerText = "Deploy & Host Website";
             document.getElementById('site-name-input').value = '';
